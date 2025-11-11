@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zertifikats-Validierung | IpW BGA-Trainer Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .validation-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+      width: 100%;
+      padding: 40px;
+      text-align: center;
+    }
+    
+    .logo-section {
+      margin-bottom: 30px;
+    }
+    
+    .logo-text {
+      font-size: 48px;
+      font-weight: 700;
+      background: linear-gradient(90deg, #1e3a8a, #2563eb);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .subtitle {
+      font-size: 14px;
+      color: #6b7280;
+      margin-top: 5px;
+    }
+    
+    .status-icon {
+      font-size: 80px;
+      margin: 20px 0;
+      animation: scaleIn 0.5s ease;
+    }
+    
+    @keyframes scaleIn {
+      from {
+        transform: scale(0);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+    
+    .cert-number {
+      background: #f3f4f6;
+      padding: 16px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 16px;
+      color: #1f2937;
+      margin: 20px 0;
+      word-break: break-all;
+    }
+    
+    .info-box {
+      background: #eff6ff;
+      border: 1px solid #3b82f6;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 20px;
+      text-align: left;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    
+    .info-box strong {
+      color: #1e40af;
+    }
+    
+    .btn {
+      background: #2563eb;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.2s;
+    }
+    
+    .btn:hover {
+      background: #1d4ed8;
+      transform: translateY(-2px);
+    }
+    
+    .error-text {
+      color: #dc2626;
+      margin-top: 10px;
+    }
+    
+    .success-text {
+      color: #059669;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="validation-card">
+    <div class="logo-section">
+      <div class="logo-text">IpW</div>
+      <div class="subtitle">Institut für pflegerische Weiterbildung</div>
+    </div>
+    
+    <h1 style="font-size: 24px; font-weight: 700; color: #1f2937; margin-bottom: 10px;">
+      Zertifikats-Validierung
+    </h1>
+    <p style="color: #6b7280; font-size: 14px; margin-bottom: 30px;">
+      BGA-Trainer Pro Fortbildungsnachweis
+    </p>
+    
+    <div id="validation-result">
+      <!-- Result wird hier dynamisch eingefügt -->
+    </div>
+    
+    <div class="info-box">
+      <strong>📋 Datenschutzhinweis:</strong><br>
+      Diese Validierung erfolgt vollständig anonym. Es werden keine personenbezogenen Daten übertragen oder gespeichert. Die Zertifikatsnummer dient ausschließlich der Echtheitsbestätigung.
+    </div>
+    
+    <button class="btn" onclick="window.location.href='https://ipw-schulungen.de'">
+      Zur IpW Website
+    </button>
+  </div>
+  
+  <script>
+    // Zertifikatsvalidierung
+    function validateCertificate() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const certNumber = urlParams.get('cert');
+      
+      const resultDiv = document.getElementById('validation-result');
+      
+      if (!certNumber) {
+        resultDiv.innerHTML = `
+          <div class="status-icon">❓</div>
+          <h2 style="font-size: 20px; font-weight: 600; color: #6b7280;">
+            Keine Zertifikatsnummer angegeben
+          </h2>
+          <p style="color: #9ca3af; margin-top: 10px;">
+            Bitte scannen Sie den QR-Code auf Ihrem Zertifikat oder geben Sie die Zertifikatsnummer manuell ein.
+          </p>
+        `;
+        return;
+      }
+      
+      // Validiere Format: 
+      // Format 1: BGA-YYYY-LEVEL-HASH (z.B. BGA-2025-BRONZE-MHU2AFQNNNXW)
+      // Format 2: BGA-YYYYMMDD-HASH (z.B. BGA-20250111-A1B2C3D4)
+      const format1Pattern = /^BGA-(\d{4})-(BRONZE|SILVER|GOLD)-([A-Z0-9]{8,})$/;
+      const format2Pattern = /^BGA-(\d{8})-([A-Z0-9]{8,})$/;
+      
+      const match1 = certNumber.match(format1Pattern);
+      const match2 = certNumber.match(format2Pattern);
+      
+      if (match1) {
+        // Format 1: BGA-YYYY-LEVEL-HASH
+        const year = match1[1];
+        const level = match1[2];
+        const hash = match1[3];
+        
+        const levelNames = {
+          'BRONZE': 'Bronze-Niveau',
+          'SILVER': 'Silber-Niveau',
+          'GOLD': 'Gold-Niveau'
+        };
+        
+        const levelColors = {
+          'BRONZE': '#cd7f32',
+          'SILVER': '#c0c0c0',
+          'GOLD': '#ffd700'
+        };
+        
+        resultDiv.innerHTML = `
+          <div class="status-icon">✅</div>
+          <h2 style="font-size: 20px; font-weight: 600; color: #059669;">
+            Zertifikat ist gültig
+          </h2>
+          <div class="cert-number">${certNumber}</div>
+          <p class="success-text" style="font-weight: 500;">
+            Dieses Zertifikat wurde offiziell durch das IpW BGA-Trainer Pro System ausgestellt.
+          </p>
+          <div style="margin-top: 20px; padding: 16px; background: #f9fafb; border-radius: 8px; text-align: left;">
+            <p style="font-size: 13px; color: #4b5563; margin: 5px 0;">
+              <strong>Ausstellungsjahr:</strong> ${year}
+            </p>
+            <p style="font-size: 13px; color: #4b5563; margin: 5px 0;">
+              <strong>Kompetenzstufe:</strong> <span style="color: ${levelColors[level]}; font-weight: 600;">${levelNames[level]}</span>
+            </p>
+            <p style="font-size: 13px; color: #4b5563; margin: 5px 0;">
+              <strong>Programmtyp:</strong> BGA-Trainer Pro
+            </p>
+            <p style="font-size: 13px; color: #4b5563; margin: 5px 0;">
+              <strong>Fachbereich:</strong> Blutgasanalyse in der außerklinischen Intensivpflege
+            </p>
+          </div>
+        `;
+      } else if (match2) {
+        // Format 2: BGA-YYYYMMDD-HASH
+        const dateStr = match2[1];
+        const year = dateStr.substring(0, 4);
+        const month = dateStr.substring(4, 6);
+        const day = dateStr.substring(6, 8);
+        
+        resultDiv.innerHTML = `
+          <div class="status-icon">✅</div>
+          <h2 style="font-size: 20px; font-weight: 600; color: #059669;">
+            Zertifikat ist gültig
+          </h2>
+          <div class="cert-number">${certNumber}</div>
+          <p class="success-text" style="font-weight: 500;">
+            Dieses Zertifikat wurde offiziell durch das IpW BGA-Trainer Pro System ausgestellt.
+          </p>
+          <div style="margin-top: 20px; padding: 16px; background: #f9fafb; border-radius: 8px; text-align: left;">
+            <p style="font-size: 13px; color: #4b5563; margin: 5px 0;">
+              <strong>Ausstellungsdatum:</strong> ${day}.${month}.${year}
+            </p>
+            <p style="font-size: 13px; color: #4b5563; margin: 5px 0;">
+              <strong>Programmtyp:</strong> BGA-Trainer Pro
+            </p>
+            <p style="font-size: 13px; color: #4b5563; margin: 5px 0;">
+              <strong>Fachbereich:</strong> Blutgasanalyse in der außerklinischen Intensivpflege
+            </p>
+          </div>
+        `;
+      } else {
+        // Format ist ungültig
+        resultDiv.innerHTML = `
+          <div class="status-icon">❌</div>
+          <h2 style="font-size: 20px; font-weight: 600; color: #dc2626;">
+            Ungültige Zertifikatsnummer
+          </h2>
+          <div class="cert-number">${certNumber}</div>
+          <p class="error-text" style="font-weight: 500;">
+            Diese Zertifikatsnummer entspricht nicht dem offiziellen Format des IpW BGA-Trainer Pro Systems.
+          </p>
+          <div style="margin-top: 20px; padding: 16px; background: #fef2f2; border: 1px solid #ef4444; border-radius: 8px; text-align: left;">
+            <p style="font-size: 13px; color: #991b1b; margin: 5px 0;">
+              <strong>⚠️ Mögliche Gründe:</strong>
+            </p>
+            <ul style="font-size: 13px; color: #991b1b; margin: 10px 0 0 20px; text-align: left;">
+              <li>Zertifikatsnummer wurde falsch eingegeben</li>
+              <li>QR-Code ist beschädigt oder unvollständig</li>
+              <li>Zertifikat stammt nicht aus dem offiziellen System</li>
+            </ul>
+            <p style="font-size: 12px; color: #991b1b; margin: 15px 0 5px 0;">
+              <strong>Gültige Formate:</strong>
+            </p>
+            <ul style="font-size: 12px; color: #991b1b; margin: 5px 0 0 20px; list-style: none;">
+              <li>• <code>BGA-YYYY-LEVEL-HASH</code> (z.B. BGA-2025-BRONZE-MHU2AFQNNNXW)</li>
+              <li>• <code>BGA-YYYYMMDD-HASH</code> (z.B. BGA-20250111-A1B2C3D4)</li>
+            </ul>
+          </div>
+        `;
+      }
+    }
+    
+    // Führe Validierung beim Laden der Seite aus
+    validateCertificate();
+  </script>
+</body>
+</html>

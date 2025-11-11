@@ -1,0 +1,3618 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BGA-Trainer Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f3f4f6;
+    }
+    
+    .card {
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    
+    .header {
+      background: linear-gradient(90deg, #1e3a8a, #2563eb);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .bga-table {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 16px;
+    }
+    
+    .bga-item {
+      position: relative;
+      background-color: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+    .bga-item label {
+      display: block;
+      font-size: 0.875rem;
+      color: #4b5563;
+      font-weight: 500;
+    }
+    .bga-item input {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #111827;
+      width: 100%;
+      border: none;
+      background: transparent;
+      text-align: center;
+      padding: 4px 0 0;
+      outline: none;
+    }
+    
+    .bga-item.norm-green { border-color: #10b981; background-color: #f0fdf4; }
+    .bga-item.norm-red { border-color: #ef4444; background-color: #fef2f2; }
+    .bga-item.norm-blue { border-color: #3b82f6; background-color: #eff6ff; }
+
+    .tooltip {
+      position: absolute;
+      top: 2px;
+      right: 5px;
+      cursor: help;
+      color: #9ca3af;
+    }
+    .tooltip .tooltip-text {
+      visibility: hidden;
+      width: 220px;
+      background-color: #111827;
+      color: #fff;
+      text-align: left;
+      border-radius: 6px;
+      padding: 8px;
+      position: absolute;
+      z-index: 10;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 0.75rem;
+    }
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+    
+    .response-list {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    @media (min-width: 640px) {
+      .response-list.two-col {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    
+    .response-list li {
+      margin: 0;
+    }
+    .response-list input[type="radio"] {
+      display: none;
+    }
+    .response-list label {
+      display: block;
+      padding: 16px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      background-color: #f3f4f6;
+      color: #374151;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 500;
+    }
+    
+    .response-list input[type="radio"]:checked + label {
+      background-color: #3b82f6;
+      color: white;
+      border-color: #2563eb;
+    }
+    
+    .response-list input[type="radio"]:disabled + label,
+    fieldset:disabled .response-list label {
+        background-color: #f3f4f6;
+        color: #9ca3af;
+        cursor: not-allowed;
+        border-color: #e5e7eb;
+    }
+
+    .btn {
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+    }
+    .btn-primary {
+      background-color: #2563eb;
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #1d4ed8;
+    }
+    .btn-secondary {
+      background-color: #e5e7eb;
+      color: #374151;
+    }
+    .btn-secondary:hover {
+      background-color: #d1d5db;
+    }
+
+    .mode-switch {
+      display: flex;
+      border-radius: 8px;
+      background-color: #e5e7eb;
+      padding: 4px;
+      width: fit-content;
+    }
+    .mode-switch input[type="radio"] {
+      display: none;
+    }
+    .mode-switch label {
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      color: #4b5563;
+      transition: all 0.2s ease;
+    }
+    .mode-switch input[type="radio"]:checked + label {
+      background-color: #ffffff;
+      color: #111827;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    details {
+      background-color: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    details summary {
+      padding: 16px;
+      cursor: pointer;
+      font-weight: 600;
+      color: #1f2937;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    details summary::-webkit-details-marker {
+      display: none;
+    }
+    details .content {
+      padding: 0 16px 16px;
+      border-top: 1px solid #e5e7eb;
+    }
+    
+    .clinical-explanation {
+      background-color: #eff6ff;
+      border: 1px solid #3b82f6;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+    .clinical-explanation h4 {
+      margin: 0 0 8px;
+      color: #1e40af;
+      font-size: 0.95rem;
+    }
+    .clinical-explanation p {
+      margin: 0 0 8px;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    /* Sprint 2: Dashboard Styles */
+    .stats-section {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    
+    .stats-section h3 {
+      margin: 0 0 12px 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    
+    .stat-item {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 12px;
+      border-radius: 6px;
+    }
+    
+    .stat-label {
+      font-size: 0.85rem;
+      opacity: 0.9;
+      margin-bottom: 4px;
+    }
+    
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    
+    .progress-bar-container {
+      background: rgba(255, 255, 255, 0.2);
+      height: 24px;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 8px 0;
+      position: relative;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      transition: width 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    
+    .progress-bar.excellent { background: #10b981; }
+    .progress-bar.good { background: #f59e0b; }
+    .progress-bar.needs-work { background: #ef4444; }
+    
+    .recommendation-card {
+      background: rgba(255, 255, 255, 0.15);
+      border-left: 4px solid #fbbf24;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+    
+    .recommendation-card h4 {
+      margin: 0 0 6px 0;
+      font-size: 0.95rem;
+    }
+    
+    .recommendation-card p {
+      margin: 0;
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+
+  </style>
+</head>
+<body class="p-4 md:p-8">
+
+  <div class="max-w-3xl mx-auto">
+    
+    <header class="header">
+      <div class="flex justify-between items-center">
+        <h1 class="text-xl md:text-2xl font-bold">BGA-Trainer Pro</h1>
+        <div class="flex gap-2 items-center">
+          <div id="progress-badge" class="bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full cursor-help" title="Klicken für Details">
+            <span id="progress-text">Lade...</span>
+          </div>
+          <div id="mode-chip" class="bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">
+            BASIS MODUS
+          </div>
+        </div>
+      </div>
+      <p class="text-sm text-white/80 mt-2">Systematisches BGA-Training für die Intensivpflege</p>
+    </header>
+
+    <div class="card flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div>
+        <h2 class="text-lg font-semibold text-gray-800 m-0">Lern-Modus</h2>
+        <p class="text-gray-600 m-0 text-sm">Wähle deinen Erfahrungsgrad.</p>
+      </div>
+      <div class="flex gap-3 items-center flex-wrap">
+        <div class="mode-switch">
+          <input type="radio" id="mode-basic" name="mode" value="basic" checked>
+          <label for="mode-basic">Basis</label>
+          <input type="radio" id="mode-advanced" name="mode" value="advanced">
+          <label for="mode-advanced">Advanced</label>
+          <input type="radio" id="mode-mixed" name="mode" value="mixed">
+          <label for="mode-mixed">Mixed</label>
+        </div>
+        <button id="stats-toggle-btn" class="btn btn-secondary text-sm py-2 px-3" title="Zeige detaillierte Lernstatistiken">
+          📊 Statistiken
+        </button>
+      </div>
+    </div>
+
+    <!-- Dashboard Panel (initially hidden) -->
+    <div id="stats-dashboard" class="card hidden" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold m-0">📊 Deine Lernstatistiken</h2>
+        <button id="stats-close-btn" class="text-white hover:text-gray-200 text-2xl font-bold" style="background: none; border: none; cursor: pointer;" title="Schließen">&times;</button>
+      </div>
+      
+      <div id="stats-content" class="space-y-4">
+        <!-- Wird dynamisch gefüllt -->
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-semibold text-gray-800 m-0">
+          Fall #<span id="case-id">1</span>
+        </h2>
+        <span id="case-complexity" class="text-xs px-2 py-1 rounded-full bg-green-100 text-green-800"></span>
+      </div>
+
+      <div id="clinical-context" class="mb-4 p-3 bg-blue-50 border-l-4 border-blue-500 text-sm text-gray-700 rounded">
+        Klinischer Kontext wird hier angezeigt...
+      </div>
+
+      <h3 class="text-base font-semibold text-gray-700 mb-3">Grundwerte</h3>
+      <div class="bga-table mb-4">
+        <div class="bga-item" id="item-ph">
+          <label for="ph">pH</label>
+          <input type="number" id="ph" step="0.01" value="7.40" readonly>
+          <div class="tooltip">?
+            <span class="tooltip-text">Säure-Basen-Status. Niedrig = Azidose, Hoch = Alkalose.</span>
+          </div>
+        </div>
+        <div class="bga-item" id="item-pco2">
+          <label for="pco2">pCO₂ (mmHg)</label>
+          <input type="number" id="pco2" step="0.1" value="40.0" readonly>
+          <div class="tooltip">?
+            <span class="tooltip-text">Respiratorischer Parameter.</span>
+          </div>
+        </div>
+        <div class="bga-item" id="item-hco3">
+          <label for="hco3">HCO₃⁻ (mmol/L)</label>
+          <input type="number" id="hco3" step="0.1" value="24.0" readonly>
+          <div class="tooltip">?
+            <span class="tooltip-text">Metabolischer Parameter.</span>
+          </div>
+        </div>
+        <div class="bga-item" id="item-be">
+          <label for="be">BE (mmol/L)</label>
+          <input type="number" id="be" step="0.1" value="0.0" readonly>
+          <div class="tooltip">?
+            <span class="tooltip-text">Base Excess.</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="advanced-values-container" class="hidden">
+        <h3 class="text-base font-semibold text-gray-700 mb-3">Erweiterte Werte</h3>
+        <div class="bga-table">
+          <div class="bga-item" id="item-laktat">
+            <label for="laktat">Laktat (mmol/L)</label>
+            <input type="number" id="laktat" step="0.1" value="1.0" readonly>
+          </div>
+          <div class="bga-item" id="item-na">
+            <label for="na">Na⁺ (mmol/L)</label>
+            <input type="number" id="na" step="1" value="140" readonly>
+          </div>
+          <div class="bga-item" id="item-cl">
+            <label for="cl">Cl⁻ (mmol/L)</label>
+            <input type="number" id="cl" step="1" value="105" readonly>
+          </div>
+          <div class="bga-item" id="item-k">
+            <label for="k">K⁺ (mmol/L)</label>
+            <input type="number" id="k" step="0.1" value="4.0" readonly>
+          </div>
+          <div class="bga-item" id="item-glukose">
+            <label for="glukose">Glukose (mg/dL)</label>
+            <input type="number" id="glukose" step="1" value="100" readonly>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+    
+    <details>
+      <summary>Normwerte (Spickzettel)</summary>
+      <div class="content text-sm text-gray-700">
+        <ul class="list-disc pl-5 space-y-1">
+          <li><strong>pH:</strong> 7.35 – 7.45</li>
+          <li><strong>pCO₂:</strong> 35 – 45 mmHg</li>
+          <li><strong>HCO₃⁻:</strong> 22 – 26 mmol/L</li>
+          <li><strong>BE:</strong> -2 – +2 mmol/L</li>
+          <li><strong>Laktat:</strong> 0.5 – 2.0 mmol/L</li>
+          <li><strong>Na⁺:</strong> 135 – 145 mmol/L</li>
+          <li><strong>Cl⁻:</strong> 98 – 108 mmol/L</li>
+          <li><strong>K⁺:</strong> 3.5 – 5.0 mmol/L</li>
+          <li><strong>Glukose:</strong> 70 – 110 mg/dL</li>
+        </ul>
+        <p class="mt-2 text-xs text-gray-500">Beachte: Normwerte können je nach Labor leicht abweichen.</p>
+      </div>
+    </details>
+
+    <div class="card">
+      <h2 class="text-lg font-semibold text-gray-800 m-0 mb-4">1. Primäre Störung</h2>
+      <fieldset id="primary-fieldset">
+        <ul class="response-list two-col">
+          <li><input type="radio" id="p-normal" name="primary" value="NORMAL"><label for="p-normal">Normal</label></li>
+          <li><input type="radio" id="p-resp-aci" name="primary" value="RESP_ACI"><label for="p-resp-aci">Respiratorische Azidose</label></li>
+          <li><input type="radio" id="p-resp-alk" name="primary" value="RESP_ALK"><label for="p-resp-alk">Respiratorische Alkalose</label></li>
+          <li><input type="radio" id="p-met-aci" name="primary" value="MET_ACI"><label for="p-met-aci">Metabolische Azidose</label></li>
+          <li><input type="radio" id="p-met-alk" name="primary" value="MET_ALK"><label for="p-met-alk">Metabolische Alkalose</label></li>
+          <li id="p-mixed-li" class="hidden"><input type="radio" id="p-mixed" name="primary" value="P_MIXED"><label for="p-mixed">Gemischte Störung</label></li>
+        </ul>
+      </fieldset>
+    </div>
+
+    <div class="card">
+      <fieldset id="comp-basic-fieldset" disabled>
+        <legend class="text-lg font-semibold text-gray-800 m-0 mb-4">2. Kompensation (Basis)</legend>
+        <ul class="response-list">
+          <li><input type="radio" id="c-none" name="comp_basic" value="NONE"><label for="c-none">Keine Kompensation</label></li>
+          <li><input type="radio" id="c-partial" name="comp_basic" value="PARTIAL"><label for="c-partial">Teilweise kompensiert</label></li>
+          <li><input type="radio" id="c-full" name="comp_basic" value="FULL"><label for="c-full">Vollständig kompensiert</label></li>
+        </ul>
+      </fieldset>
+      
+      <fieldset id="comp-advanced-fieldset" class="hidden" disabled>
+        <legend class="text-lg font-semibold text-gray-800 m-0 mb-4">2. Kompensations-Analyse (Advanced)</legend>
+        <ul class="response-list two-col">
+          <li><input type="radio" id="ca-none" name="comp_advanced" value="NONE"><label for="ca-none">Keine Kompensation</label></li>
+          <li><input type="radio" id="ca-resp-partial" name="comp_advanced" value="RESP_PARTIAL"><label for="ca-resp-partial">Respiratorische Teil-Komp.</label></li>
+          <li><input type="radio" id="ca-met-partial" name="comp_advanced" value="MET_PARTIAL"><label for="ca-met-partial">Metabolische Teil-Komp.</label></li>
+          <li><input type="radio" id="ca-resp-full" name="comp_advanced" value="RESP_FULL"><label for="ca-resp-full">Respiratorische Voll-Komp.</label></li>
+          <li><input type="radio" id="ca-met-full" name="comp_advanced" value="MET_FULL"><label for="ca-met-full">Metabolische Voll-Komp.</label></li>
+          <li><input type="radio" id="ca-mixed" name="comp_advanced" value="C_MIXED"><label for="ca-mixed">Gemischte Störung</label></li>
+        </ul>
+      </fieldset>
+    </div>
+
+    <div class="card">
+      <details id="explain-wrap" class="mb-4">
+        <summary>
+          <div class="flex items-center">
+            <span id="status-dot" style="display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:8px;background-color:#9ca3af;"></span>
+            <span id="result-text">Bitte Werte auswerten</span>
+          </div>
+        </summary>
+        <div class="content text-sm text-gray-700" id="explanation">
+          Bitte wähle eine primäre Störung und die Kompensation aus.
+        </div>
+      </details>
+      
+      <div id="clinical-explanation-container" class="hidden">
+        <div class="clinical-explanation">
+          <h4>🎓 Klinische Bedeutung</h4>
+          <div id="clinical-explanation-text"></div>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-3 mt-4">
+        <button id="evalbutton" class="btn btn-primary flex-1">Auswerten</button>
+        <button id="resetbutton" class="btn btn-secondary">Zurücksetzen</button>
+        <button id="nextcasebutton" class="btn btn-secondary">Nächster Fall</button>
+      </div>
+      
+    </div>
+
+  </div>
+
+  <footer class="max-w-3xl mx-auto text-center text-xs text-gray-500 mt-8 mb-4 px-4">
+    <p><strong>Wichtiger Hinweis (Haftungsausschluss):</strong><br>
+    Dieses Tool dient ausschließlich zu Übungs- und Schulungszwecken. Die dargestellten Fälle, Werte und Erklärungen sind nicht zur Stellung medizinischer Diagnosen oder als Ersatz für professionellen medizinischen Rat, eine Diagnose oder eine Behandlung gedacht. Die Nutzung erfolgt auf eigene Gefahr. Es wird keine Haftung für die Richtigkeit oder Vollständigkeit der Inhalte übernommen.</p>
+    <p class="mt-4">
+      <a href="#" onclick="showImpressum(); return false;" class="text-gray-600 hover:text-gray-800 underline">Impressum</a> • 
+      <a href="#" onclick="showDatenschutz(); return false;" class="text-gray-600 hover:text-gray-800 underline">Datenschutz</a>
+    </p>
+    <p class="mt-4 text-gray-400" style="font-size: 0.65rem;">© 2025 Martin Damke | IpW GmbH – Institut für pflegerische Weiterbildung | <span id="dev-mode" style="cursor: help;" title="Shift+Klick für Entwickler-Optionen">🔧</span></p>
+  </footer>
+
+  <script>
+    // Zeigt das Impressum-Modal
+    function showImpressum() {
+      const modal = createLegalModal('Impressum', `
+        <div style="text-align: left; line-height: 1.8;">
+          <h3 style="color: #1f2937; margin-bottom: 16px;">Angaben gemäß § 5 TMG</h3>
+          
+          <p style="margin-bottom: 20px;">
+            <strong>IpW GmbH</strong><br>
+            Institut für pflegerische Weiterbildung<br>
+            Angerer Str. 2<br>
+            83346 Bergen<br>
+            Deutschland
+          </p>
+          
+          <p style="margin-bottom: 20px;">
+            <strong>Kontakt:</strong><br>
+            Telefon: 0 86 62 – 48 59 38<br>
+            Fax: 0 86 62 – 48 58 01<br>
+            E-Mail: <a href="mailto:info@ipw-schulungen.de" style="color: #4F6BFF;">info@ipw-schulungen.de</a><br>
+            Web: <a href="https://www.ipw-schulungen.de" target="_blank" style="color: #4F6BFF;">www.ipw-schulungen.de</a>
+          </p>
+          
+          <p style="margin-bottom: 20px;">
+            <strong>Vertretungsberechtigte Geschäftsführer:</strong><br>
+            Tania Keese<br>
+            Manfred Vavrinek
+          </p>
+          
+          <p style="margin-bottom: 20px;">
+            <strong>Inhaltlich verantwortlich gemäß § 55 Abs. 2 RStV:</strong><br>
+            IpW GmbH<br>
+            vertreten durch die Geschäftsführer
+          </p>
+          
+          <h3 style="color: #1f2937; margin: 24px 0 16px 0;">Haftungsausschluss</h3>
+          
+          <p style="margin-bottom: 16px;">
+            <strong>Haftung für Inhalte</strong><br>
+            Die Inhalte dieses Tools wurden mit größtmöglicher Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen.
+          </p>
+          
+          <p style="margin-bottom: 16px;">
+            <strong>Medizinischer Haftungsausschluss</strong><br>
+            Dieses Tool dient ausschließlich zu Schulungs- und Übungszwecken. Es ersetzt keine medizinische oder pflegerische Ausbildung, keine berufliche Zulassung und keine klinische Erfahrung. Die Nutzung erfolgt auf eigene Verantwortung. Für Schäden, die durch fehlerhafte Anwendung des erlernten Wissens entstehen, übernehmen wir keine Haftung.
+          </p>
+          
+          <p style="margin-bottom: 16px;">
+            <strong>Urheberrecht</strong><br>
+            Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesem Tool unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.
+          </p>
+        </div>
+      `);
+      document.body.appendChild(modal);
+    }
+    
+    // Zeigt das Datenschutz-Modal
+    function showDatenschutz() {
+      const modal = createLegalModal('Datenschutzerklärung', `
+        <div style="text-align: left; line-height: 1.8;">
+          <h3 style="color: #1f2937; margin-bottom: 16px;">1. Datenschutz auf einen Blick</h3>
+          
+          <p style="margin-bottom: 16px;">
+            <strong>Allgemeine Hinweise</strong><br>
+            Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie dieses Tool nutzen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.
+          </p>
+          
+          <p style="margin-bottom: 20px;">
+            <strong>Verantwortliche Stelle</strong><br>
+            IpW GmbH – Institut für pflegerische Weiterbildung<br>
+            Angerer Str. 2, 83346 Bergen<br>
+            Telefon: 0 86 62 – 48 59 38<br>
+            E-Mail: info@ipw-schulungen.de
+          </p>
+          
+          <h3 style="color: #1f2937; margin: 24px 0 16px 0;">2. Datenerfassung beim BGA-Trainer Pro</h3>
+          
+          <p style="margin-bottom: 16px;">
+            <strong>LocalStorage (Lernfortschritt)</strong><br>
+            Dieses Tool speichert Ihren individuellen Lernfortschritt ausschließlich lokal in Ihrem Browser (sogenannter "LocalStorage"). Diese Daten umfassen:
+          </p>
+          <ul style="margin: 0 0 16px 20px;">
+            <li>Fall-IDs der von Ihnen bearbeiteten Aufgaben</li>
+            <li>Zeitstempel Ihrer Versuche</li>
+            <li>Ihre Antworten und deren Richtigkeit</li>
+            <li>Statistische Auswertungen (Erfolgsquoten, Fehlerraten)</li>
+          </ul>
+          <p style="margin-bottom: 16px;">
+            <strong>Wichtig:</strong> Es werden keine personenbezogenen Daten wie Name, E-Mail-Adresse oder IP-Adresse gespeichert. Die Daten verlassen niemals Ihren Computer und werden nicht an unsere Server oder Dritte übertragen. Die Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Bereitstellung der Tool-Funktionalität).
+          </p>
+          
+          <p style="margin-bottom: 16px;">
+            <strong>Zertifikatsgenerierung</strong><br>
+            Wenn Sie ein Fortbildungszertifikat erstellen, werden Sie aufgefordert, Ihren Namen einzugeben. Dieser Name wird:
+          </p>
+          <ul style="margin: 0 0 16px 20px;">
+            <li>Ausschließlich zur Erstellung des PDF-Dokuments verwendet</li>
+            <li>Nicht gespeichert (weder im LocalStorage noch auf Servern)</li>
+            <li>Nach der PDF-Generierung aus dem Arbeitsspeicher gelöscht</li>
+          </ul>
+          <p style="margin-bottom: 16px;">
+            Die Namenseingabe erfolgt freiwillig. Sie können das Tool ohne Zertifikatsgenerierung nutzen, dann werden überhaupt keine personenbezogenen Daten verarbeitet. Rechtsgrundlage für die temporäre Verarbeitung ist Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung bzw. vorvertragliche Maßnahmen).
+          </p>
+          
+          <p style="margin-bottom: 16px;">
+            <strong>Externe Dienste (QR-Code)</strong><br>
+            Bei der Generierung eines Zertifikats wird ein QR-Code über die API des externen Dienstes "qrserver.com" geladen. Dabei kann Ihre IP-Adresse an diesen Drittanbieter übermittelt werden. Wir haben keinen Einfluss darauf, ob und wie qrserver.com diese Daten verarbeitet. Die Nutzung erfolgt auf Grundlage unseres berechtigten Interesses an der Bereitstellung einer Validierungsfunktion (Art. 6 Abs. 1 lit. f DSGVO).
+          </p>
+          
+          <h3 style="color: #1f2937; margin: 24px 0 16px 0;">3. Ihre Rechte</h3>
+          
+          <p style="margin-bottom: 16px;">
+            Sie haben folgende Rechte bezüglich Ihrer Daten:
+          </p>
+          <ul style="margin: 0 0 16px 20px;">
+            <li><strong>Auskunft:</strong> Sie können jederzeit unentgeltlich Auskunft über die bei uns gespeicherten Daten erhalten.</li>
+            <li><strong>Löschung:</strong> Sie können Ihre im LocalStorage gespeicherten Lerndaten jederzeit selbst löschen (Shift+Klick auf das Werkzeug-Symbol im Footer, dann "Fortschritt löschen"). Alternativ werden die Daten beim Löschen des Browser-Caches automatisch entfernt.</li>
+            <li><strong>Widerspruch:</strong> Sie können der Verarbeitung Ihrer Daten jederzeit widersprechen, indem Sie das Tool nicht mehr nutzen und Ihre LocalStorage-Daten löschen.</li>
+            <li><strong>Beschwerde:</strong> Sie haben das Recht, sich bei der zuständigen Datenschutz-Aufsichtsbehörde zu beschweren.</li>
+          </ul>
+          
+          <h3 style="color: #1f2937; margin: 24px 0 16px 0;">4. Keine Cookies, kein Tracking</h3>
+          
+          <p style="margin-bottom: 16px;">
+            Dieses Tool verwendet keine Cookies und kein Tracking. Es gibt keine Analyse-Tools wie Google Analytics, keine Werbe-Tracker und keine Social-Media-Plugins. Ihre Nutzung wird nicht überwacht oder analysiert.
+          </p>
+          
+          <h3 style="color: #1f2937; margin: 24px 0 16px 0;">5. Datensicherheit</h3>
+          
+          <p style="margin-bottom: 16px;">
+            Da alle Daten ausschließlich lokal in Ihrem Browser gespeichert werden, liegt die Sicherheit dieser Daten in Ihrer Verantwortung. Wir empfehlen:
+          </p>
+          <ul style="margin: 0 0 16px 20px;">
+            <li>Nutzen Sie das Tool nur auf vertrauenswürdigen Geräten</li>
+            <li>Halten Sie Ihren Browser aktuell</li>
+            <li>Verwenden Sie keine öffentlichen Computer für persönliche Zertifikate</li>
+          </ul>
+          
+          <h3 style="color: #1f2937; margin: 24px 0 16px 0;">6. Änderungen dieser Datenschutzerklärung</h3>
+          
+          <p style="margin-bottom: 16px;">
+            Wir behalten uns vor, diese Datenschutzerklärung anzupassen, um sie an geänderte Rechtssituationen oder bei Änderungen des Tools anzupassen. Die jeweils aktuelle Fassung finden Sie über den Link "Datenschutz" im Footer des Tools.
+          </p>
+          
+          <p style="margin-bottom: 16px;">
+            <strong>Stand:</strong> Januar 2025
+          </p>
+        </div>
+      `);
+      document.body.appendChild(modal);
+    }
+    
+    // Erstellt ein Modal für rechtliche Informationen
+    function createLegalModal(title, content) {
+      const modal = document.createElement('div');
+      modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000; overflow-y: auto; padding: 20px;';
+      
+      const modalContent = document.createElement('div');
+      modalContent.style.cssText = 'background: white; border-radius: 12px; padding: 32px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative;';
+      
+      modalContent.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid #e5e7eb;">
+          <h2 style="margin: 0; color: #1f2937; font-size: 24px;">${title}</h2>
+          <button onclick="this.closest('div[style*=fixed]').remove();" style="background: none; border: none; font-size: 32px; color: #6b7280; cursor: pointer; padding: 0; line-height: 1;">&times;</button>
+        </div>
+        <div style="font-size: 14px; color: #374151;">
+          ${content}
+        </div>
+        <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e7eb; text-align: right;">
+          <button onclick="this.closest('div[style*=fixed]').remove();" style="padding: 10px 24px; background: #4F6BFF; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px;">Schließen</button>
+        </div>
+      `;
+      
+      modal.appendChild(modalContent);
+      
+      // Schließen bei Klick außerhalb
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.remove();
+        }
+      });
+      
+      return modal;
+    }
+    
+    // Developer Mode: Shift+Klick auf Dev-Icon zeigt Reset-Option
+    document.getElementById('dev-mode').addEventListener('click', function(e) {
+      if (e.shiftKey) {
+        const stats = LearningManager.getBasicStats();
+        const confirmMsg = `🔧 ENTWICKLER-MODUS\n\n`;
+        const confirmMsg2 = `Aktueller Speicher:\n`;
+        const confirmMsg3 = `• ${stats.totalAttempts} gespeicherte Versuche\n`;
+        const confirmMsg4 = `• ${stats.uniqueCasesWorked} verschiedene Fälle\n\n`;
+        const confirmMsg5 = `Möchtest du alle Daten löschen?\n`;
+        const confirmMsg6 = `(Nur für Testing/Entwicklung)`;
+        
+        if (confirm(confirmMsg + confirmMsg2 + confirmMsg3 + confirmMsg4 + confirmMsg5 + confirmMsg6)) {
+          if (LearningManager.reset()) {
+            updateProgressBadge();
+            alert('→ Lernfortschritt wurde zurückgesetzt.');
+            location.reload();
+          }
+        }
+      } else {
+        alert('💡 Tipp: Shift+Klick für Entwickler-Optionen');
+      }
+    });
+
+    const NORMBEREICHE = {
+      ph: { min: 7.35, max: 7.45 },
+      pco2: { min: 35, max: 45 },
+      hco3: { min: 22, max: 26 },
+      be: { min: -2, max: 2 },
+      laktat: { min: 0.5, max: 2.0 },
+      na: { min: 135, max: 145 },
+      cl: { min: 98, max: 108 },
+      k: { min: 3.5, max: 5.0 },
+      glukose: { min: 70, max: 110 }
+    };
+
+    // ========================================
+    // LEARNING MANAGER - Sprint 1: Persistenz & Basis-Tracking
+    // ========================================
+    const LearningManager = {
+      STORAGE_KEY: 'bga_trainer_learning_profile',
+      
+      // Initialisiert das Learning Profile oder lädt existierendes
+      init() {
+        const stored = localStorage.getItem(this.STORAGE_KEY);
+        if (stored) {
+          try {
+            this.profile = JSON.parse(stored);
+            // Sicherstellen dass die Struktur korrekt ist (für Updates)
+            if (!this.profile.attempts) this.profile.attempts = [];
+            if (!this.profile.startedAt) this.profile.startedAt = new Date().toISOString();
+          } catch (e) {
+            console.error('Fehler beim Laden des Profils, erstelle neues:', e);
+            this.createNewProfile();
+          }
+        } else {
+          this.createNewProfile();
+        }
+        return this.profile;
+      },
+      
+      // Erstellt ein neues Learning Profile
+      createNewProfile() {
+        this.profile = {
+          startedAt: new Date().toISOString(),
+          attempts: [], // Array mit allen Versuchen
+          totalCases: 0, // Anzahl bearbeiteter Fälle
+          correctCases: 0 // Anzahl richtig gelöster Fälle
+        };
+        this.save();
+      },
+      
+      // Speichert einen neuen Versuch
+      saveAttempt(caseId, selectedPrimary, selectedComp, correctPrimary, correctComp, mode) {
+        const isCorrect = (selectedPrimary === correctPrimary && selectedComp === correctComp);
+        
+        const attempt = {
+          caseId: caseId,
+          timestamp: new Date().toISOString(),
+          selectedPrimary: selectedPrimary,
+          selectedComp: selectedComp,
+          correctPrimary: correctPrimary,
+          correctComp: correctComp,
+          isCorrect: isCorrect,
+          mode: mode,
+          // Fehlertyp-Analyse für Sprint 2
+          errorType: this.analyzeError(selectedPrimary, selectedComp, correctPrimary, correctComp)
+        };
+        
+        this.profile.attempts.push(attempt);
+        this.profile.totalCases++;
+        if (isCorrect) this.profile.correctCases++;
+        
+        this.save();
+        return isCorrect;
+      },
+      
+      // Analysiert die Art des Fehlers (Basis für Sprint 2)
+      analyzeError(selPrimary, selComp, corPrimary, corComp) {
+        if (selPrimary === corPrimary && selComp === corComp) return 'none';
+        if (selPrimary !== corPrimary && selComp !== corComp) return 'both';
+        if (selPrimary !== corPrimary) return 'primary';
+        if (selComp !== corComp) return 'compensation';
+        return 'unknown';
+      },
+      
+      // Speichert das Profil in LocalStorage
+      save() {
+        try {
+          localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.profile));
+        } catch (e) {
+          console.error('Fehler beim Speichern:', e);
+          // LocalStorage könnte voll sein oder Browser erlaubt es nicht
+          alert('Warnung: Dein Fortschritt konnte nicht gespeichert werden. Möglicherweise ist der Browser-Speicher voll.');
+        }
+      },
+      
+      // Gibt Basis-Statistiken zurück
+      getBasicStats() {
+        const total = this.profile.totalCases;
+        const correct = this.profile.correctCases;
+        const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
+        
+        // Berechne wie viele verschiedene Fälle bearbeitet wurden
+        const uniqueCases = new Set(this.profile.attempts.map(a => a.caseId)).size;
+        
+        // Finde letzte Session (Versuche der letzten 2 Stunden)
+        const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
+        const recentAttempts = this.profile.attempts.filter(a => 
+          new Date(a.timestamp) > twoHoursAgo
+        );
+        
+        return {
+          totalAttempts: total,
+          correctAttempts: correct,
+          successRate: percentage,
+          uniqueCasesWorked: uniqueCases,
+          recentSessionSize: recentAttempts.length,
+          startedAt: this.profile.startedAt
+        };
+      },
+      
+      // Löscht das Profil (für Testing oder Neustart)
+      reset() {
+        if (confirm('Möchtest du wirklich deinen gesamten Lernfortschritt löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) {
+          localStorage.removeItem(this.STORAGE_KEY);
+          this.createNewProfile();
+          return true;
+        }
+        return false;
+      },
+      
+      // ========================================
+      // SPRINT 2: Erweiterte Analyse-Methoden
+      // ========================================
+      
+      // Analysiert Performance nach Störungstypen
+      getPerformanceByDisorder() {
+        const disorders = {
+          'NORMAL': { total: 0, correct: 0, label: 'Normal' },
+          'RESP_ACI': { total: 0, correct: 0, label: 'Respiratorische Azidose' },
+          'RESP_ALK': { total: 0, correct: 0, label: 'Respiratorische Alkalose' },
+          'MET_ACI': { total: 0, correct: 0, label: 'Metabolische Azidose' },
+          'MET_ALK': { total: 0, correct: 0, label: 'Metabolische Alkalose' },
+          'P_MIXED': { total: 0, correct: 0, label: 'Gemischte Störung' }
+        };
+        
+        this.profile.attempts.forEach(attempt => {
+          const correctType = attempt.correctPrimary;
+          if (disorders[correctType]) {
+            disorders[correctType].total++;
+            if (attempt.isCorrect) {
+              disorders[correctType].correct++;
+            }
+          }
+        });
+        
+        // Berechne Prozentsätze und sortiere nach Häufigkeit
+        const result = [];
+        for (const key in disorders) {
+          if (disorders[key].total > 0) {
+            const percentage = Math.round((disorders[key].correct / disorders[key].total) * 100);
+            result.push({
+              type: key,
+              label: disorders[key].label,
+              total: disorders[key].total,
+              correct: disorders[key].correct,
+              percentage: percentage,
+              status: percentage >= 80 ? 'excellent' : percentage >= 60 ? 'good' : 'needs-work'
+            });
+          }
+        }
+        
+        // Sortiere nach Anzahl der Versuche (häufigste zuerst)
+        result.sort((a, b) => b.total - a.total);
+        return result;
+      },
+      
+      // Analysiert Fehlertypen (Primärstörung vs Kompensation)
+      getErrorTypeAnalysis() {
+        const errorTypes = {
+          'none': 0,        // Alles richtig
+          'primary': 0,     // Nur Primärstörung falsch
+          'compensation': 0, // Nur Kompensation falsch
+          'both': 0         // Beides falsch
+        };
+        
+        this.profile.attempts.forEach(attempt => {
+          const type = attempt.errorType || 'unknown';
+          if (errorTypes.hasOwnProperty(type)) {
+            errorTypes[type]++;
+          }
+        });
+        
+        const total = this.profile.attempts.length;
+        
+        return {
+          primaryErrors: errorTypes.primary,
+          compensationErrors: errorTypes.compensation,
+          bothErrors: errorTypes.both,
+          totalErrors: errorTypes.primary + errorTypes.compensation + errorTypes.both,
+          primaryErrorRate: total > 0 ? Math.round((errorTypes.primary / total) * 100) : 0,
+          compensationErrorRate: total > 0 ? Math.round((errorTypes.compensation / total) * 100) : 0,
+          bothErrorRate: total > 0 ? Math.round((errorTypes.both / total) * 100) : 0,
+          // Diagnose wo das größte Problem liegt
+          mainWeakness: errorTypes.primary > errorTypes.compensation ? 'primary' : 
+                       errorTypes.compensation > errorTypes.primary ? 'compensation' : 
+                       errorTypes.both > 0 ? 'both' : 'none'
+        };
+      },
+      
+      // Erkennt Verwechslungsmuster
+      getConfusionPatterns() {
+        const confusions = {};
+        
+        this.profile.attempts.forEach(attempt => {
+          if (!attempt.isCorrect && attempt.selectedPrimary !== attempt.correctPrimary) {
+            const key = `${attempt.correctPrimary}_to_${attempt.selectedPrimary}`;
+            if (!confusions[key]) {
+              confusions[key] = {
+                correct: attempt.correctPrimary,
+                selected: attempt.selectedPrimary,
+                count: 0
+              };
+            }
+            confusions[key].count++;
+          }
+        });
+        
+        // Konvertiere zu Array und sortiere nach Häufigkeit
+        const patterns = Object.values(confusions).sort((a, b) => b.count - a.count);
+        
+        // Gib nur die häufigsten Verwechslungen zurück (mindestens 2x)
+        return patterns.filter(p => p.count >= 2).slice(0, 5);
+      },
+      
+      // Analysiert zeitlichen Trend (Verbesserung oder Stagnation)
+      getTrendAnalysis() {
+        const attempts = this.profile.attempts;
+        const total = attempts.length;
+        
+        if (total < 10) {
+          return {
+            available: false,
+            message: 'Noch zu wenig Daten für Trendanalyse (mindestens 10 Versuche nötig)'
+          };
+        }
+        
+        // Teile Versuche in zwei Hälften
+        const halfPoint = Math.floor(total / 2);
+        const firstHalf = attempts.slice(0, halfPoint);
+        const secondHalf = attempts.slice(halfPoint);
+        
+        const firstHalfCorrect = firstHalf.filter(a => a.isCorrect).length;
+        const secondHalfCorrect = secondHalf.filter(a => a.isCorrect).length;
+        
+        const firstRate = Math.round((firstHalfCorrect / firstHalf.length) * 100);
+        const secondRate = Math.round((secondHalfCorrect / secondHalf.length) * 100);
+        const improvement = secondRate - firstRate;
+        
+        let trend, message;
+        if (improvement >= 15) {
+          trend = 'strong-improvement';
+          message = 'Starke Verbesserung! Du lernst effektiv.';
+        } else if (improvement >= 5) {
+          trend = 'improvement';
+          message = 'Gute Entwicklung! Du machst Fortschritte.';
+        } else if (improvement >= -5) {
+          trend = 'stable';
+          message = 'Stabile Performance. Zeit für neue Herausforderungen?';
+        } else {
+          trend = 'declining';
+          message = 'Leichter Rückgang. Vielleicht eine Pause einlegen?';
+        }
+        
+        return {
+          available: true,
+          trend: trend,
+          firstHalfRate: firstRate,
+          secondHalfRate: secondRate,
+          improvement: improvement,
+          message: message
+        };
+      },
+      
+      // Findet die schwierigsten Fälle für diesen User
+      getHardestCases() {
+        const casePerformance = {};
+        
+        // Sammle alle Versuche pro Fall
+        this.profile.attempts.forEach(attempt => {
+          if (!casePerformance[attempt.caseId]) {
+            casePerformance[attempt.caseId] = {
+              caseId: attempt.caseId,
+              attempts: 0,
+              correct: 0,
+              lastAttempt: attempt.timestamp
+            };
+          }
+          casePerformance[attempt.caseId].attempts++;
+          if (attempt.isCorrect) {
+            casePerformance[attempt.caseId].correct++;
+          }
+          // Aktualisiere letzten Versuch
+          if (new Date(attempt.timestamp) > new Date(casePerformance[attempt.caseId].lastAttempt)) {
+            casePerformance[attempt.caseId].lastAttempt = attempt.timestamp;
+          }
+        });
+        
+        // Konvertiere zu Array und berechne Erfolgsquote
+        const cases = Object.values(casePerformance).map(c => ({
+          ...c,
+          successRate: c.attempts > 0 ? Math.round((c.correct / c.attempts) * 100) : 0
+        }));
+        
+        // Finde die schwierigsten (niedrigste Erfolgsquote, mindestens 2 Versuche)
+        const hardest = cases
+          .filter(c => c.attempts >= 2 && c.successRate < 80)
+          .sort((a, b) => a.successRate - b.successRate)
+          .slice(0, 5);
+        
+        return hardest;
+      },
+      
+      // Empfiehlt Fälle basierend auf Schwachstellen
+      getRecommendedCases() {
+        const performance = this.getPerformanceByDisorder();
+        const hardest = this.getHardestCases();
+        
+        const recommendations = [];
+        
+        // Empfehlung 1: Wiederhole schwierigste Fälle
+        if (hardest.length > 0) {
+          recommendations.push({
+            type: 'repeat-failed',
+            title: 'Wiederhole schwierige Fälle',
+            description: `Du hast bei ${hardest.length} Fällen Schwierigkeiten. Wiederholung festigt das Verständnis.`,
+            caseIds: hardest.map(h => h.caseId)
+          });
+        }
+        
+        // Empfehlung 2: Übe schwache Störungstypen
+        const weakDisorders = performance.filter(p => p.status === 'needs-work' && p.total >= 3);
+        if (weakDisorders.length > 0) {
+          const weakestDisorder = weakDisorders[0];
+          recommendations.push({
+            type: 'practice-weakness',
+            title: `Übe ${weakestDisorder.label}`,
+            description: `Deine Erfolgsquote liegt hier bei ${weakestDisorder.percentage}%. Gezielte Übung wird helfen.`,
+            disorderType: weakestDisorder.type
+          });
+        }
+        
+        // Empfehlung 3: Neue Fälle wenn Performance gut
+        const stats = this.getBasicStats();
+        if (stats.successRate >= 70 && stats.uniqueCasesWorked < CASES.length) {
+          recommendations.push({
+            type: 'explore-new',
+            title: 'Probiere neue Fälle',
+            description: `Du machst es gut (${stats.successRate}%)! Zeit für neue Herausforderungen.`,
+            caseIds: null
+          });
+        }
+        
+        return recommendations;
+      },
+      
+      // ========================================
+      // SPRINT 4: Meilensteine & Zertifizierung
+      // ========================================
+      
+      // Definitionen der Kompetenzstufen
+      MILESTONES: {
+        BRONZE: {
+          id: 'BRONZE',
+          label: 'Bronze-Niveau',
+          color: '#CD7C5D',
+          description: 'Grundlegende Analysefähigkeiten',
+          timeEstimate: '2 Zeitstunden (3 UE   45min)',
+          criteria: {
+            uniqueCases: 20,
+            successRate: 60,
+            primaryErrorRate: null, // Keine Bedingung
+            compensationErrorRate: null,
+            advancedCases: 0,
+            mixedDisorders: 0
+          },
+          competenceText: 'Die Teilnehmerin hat grundlegende Kenntnisse in der systematischen Analyse von Blutgaswerten erworben. Sie kann anhand von pH-Wert, pCO₂ und HCO₃⁻ zwischen normalen Werten und den sechs Hauptkategorien der Säure-Basen-Störungen unterscheiden. Die Erfolgsquote von mindestens 60% dokumentiert grundlegende Analysefähigkeiten.'
+        },
+        SILVER: {
+          id: 'SILVER',
+          label: 'Silber-Niveau',
+          color: '#C0C0C0',
+          description: 'Vertiefte Kompensationsanalyse',
+          timeEstimate: '5-6 Zeitstunden (8 UE   45min)',
+          criteria: {
+            uniqueCases: 50,
+            successRate: 70,
+            primaryErrorRate: 20, // Unter 20% Fehler bei Primärstörung
+            compensationErrorRate: null,
+            advancedCases: 20,
+            mixedDisorders: 0
+          },
+          competenceText: 'Die Teilnehmerin hat vertiefte Kenntnisse in der Blutgasanalyse mit Schwerpunkt auf Kompensationsmechanismen erworben. Sie kann neben der Primärstörung auch beurteilen, ob und in welchem Ausmaß der Körper kompensatorisch gegensteuert. Die Erfolgsquote von mindestens 70% bei gleichzeitig niedriger Fehlerrate bei der Primärstörung zeigt gefestigte Analysekompetenz.'
+        },
+        GOLD: {
+          id: 'GOLD',
+          label: 'Gold-Niveau',
+          color: '#4F6BFF',
+          description: 'Umfassende Expertise',
+          timeEstimate: '12-15 Zeitstunden (18 UE   45min)',
+          criteria: {
+            uniqueCases: 80,
+            successRate: 80,
+            primaryErrorRate: 15, // Unter 15%
+            compensationErrorRate: 15, // Unter 15%
+            advancedCases: 40,
+            mixedDisorders: 15
+          },
+          competenceText: 'Die Teilnehmerin beherrscht die systematische Analyse von Blutgaswerten und kann Säure-Basen-Störungen sicher identifizieren, Kompensationsmechanismen einschätzen und gemischte Störungsbilder differenzieren. Sie kennt die relevante Pathophysiologie der außerklinischen Intensivpflege und kann aus BGA-Befunden pflegerische Handlungsnotwendigkeiten und Eskalationskriterien ableiten. Die dokumentierte Erfolgsquote belegt sichere Handlungskompetenz im Monitoring beatmeter Patienten.'
+        }
+      },
+      
+      // Evaluiert ob Meilensteine erreicht wurden
+      evaluateMilestones() {
+        const stats = this.getBasicStats();
+        const errorAnalysis = this.getErrorTypeAnalysis();
+        const performance = this.getPerformanceByDisorder();
+        
+        const results = {
+          currentLevel: null,
+          achieved: [],
+          nextLevel: null,
+          progress: {}
+        };
+        
+        // Zähle verschiedene bearbeitete Fälle
+        const uniqueCases = stats.uniqueCasesWorked;
+        
+        // Zähle Advanced-Fälle und gemischte Störungen
+        let advancedCount = 0;
+        let mixedCount = 0;
+        const processedCases = new Set();
+        
+        this.profile.attempts.forEach(attempt => {
+          if (!processedCases.has(attempt.caseId) && attempt.isCorrect) {
+            processedCases.add(attempt.caseId);
+            const caseObj = CASES.find(c => c.id === attempt.caseId);
+            if (caseObj) {
+              if (caseObj.mode === 'advanced') advancedCount++;
+              if (caseObj.primary === 'P_MIXED') mixedCount++;
+            }
+          }
+        });
+        
+        // Berechne Fehlerraten
+        const totalAttempts = this.profile.attempts.length;
+        const primaryErrorRate = totalAttempts > 0 ? Math.round((errorAnalysis.primaryErrors / totalAttempts) * 100) : 0;
+        const compensationErrorRate = totalAttempts > 0 ? Math.round((errorAnalysis.compensationErrors / totalAttempts) * 100) : 0;
+        
+        // Prüfe jede Stufe in aufsteigender Reihenfolge
+        const levels = ['BRONZE', 'SILVER', 'GOLD'];
+        
+        for (const levelId of levels) {
+          const milestone = this.MILESTONES[levelId];
+          const criteria = milestone.criteria;
+          
+          let achieved = true;
+          const progress = {};
+          
+          // Prüfe uniqueCases
+          progress.uniqueCases = {
+            current: uniqueCases,
+            required: criteria.uniqueCases,
+            met: uniqueCases >= criteria.uniqueCases
+          };
+          if (uniqueCases < criteria.uniqueCases) achieved = false;
+          
+          // Prüfe successRate
+          progress.successRate = {
+            current: stats.successRate,
+            required: criteria.successRate,
+            met: stats.successRate >= criteria.successRate
+          };
+          if (stats.successRate < criteria.successRate) achieved = false;
+          
+          // Prüfe primaryErrorRate (nur wenn Bedingung existiert)
+          if (criteria.primaryErrorRate !== null) {
+            progress.primaryErrorRate = {
+              current: primaryErrorRate,
+              required: criteria.primaryErrorRate,
+              met: primaryErrorRate < criteria.primaryErrorRate
+            };
+            if (primaryErrorRate >= criteria.primaryErrorRate) achieved = false;
+          }
+          
+          // Prüfe compensationErrorRate (nur wenn Bedingung existiert)
+          if (criteria.compensationErrorRate !== null) {
+            progress.compensationErrorRate = {
+              current: compensationErrorRate,
+              required: criteria.compensationErrorRate,
+              met: compensationErrorRate < criteria.compensationErrorRate
+            };
+            if (compensationErrorRate >= criteria.compensationErrorRate) achieved = false;
+          }
+          
+          // Prüfe advancedCases
+          if (criteria.advancedCases > 0) {
+            progress.advancedCases = {
+              current: advancedCount,
+              required: criteria.advancedCases,
+              met: advancedCount >= criteria.advancedCases
+            };
+            if (advancedCount < criteria.advancedCases) achieved = false;
+          }
+          
+          // Prüfe mixedDisorders
+          if (criteria.mixedDisorders > 0) {
+            progress.mixedDisorders = {
+              current: mixedCount,
+              required: criteria.mixedDisorders,
+              met: mixedCount >= criteria.mixedDisorders
+            };
+            if (mixedCount < criteria.mixedDisorders) achieved = false;
+          }
+          
+          // Speichere Fortschritt für diese Stufe
+          results.progress[levelId] = progress;
+          
+          if (achieved) {
+            results.achieved.push(levelId);
+            results.currentLevel = levelId;
+          } else {
+            // Nächste noch nicht erreichte Stufe
+            if (!results.nextLevel) {
+              results.nextLevel = levelId;
+            }
+            break; // Weitere Stufen können nicht erreicht sein
+          }
+        }
+        
+        return results;
+      },
+      
+      // Prüft ob gerade ein neuer Meilenstein erreicht wurde (seit letztem Check)
+      checkForNewMilestone() {
+        const currentEval = this.evaluateMilestones();
+        const lastAchieved = this.profile.lastAchievedMilestone || null;
+        
+        if (currentEval.currentLevel && currentEval.currentLevel !== lastAchieved) {
+          // Neuer Meilenstein erreicht!
+          this.profile.lastAchievedMilestone = currentEval.currentLevel;
+          this.profile.milestoneAchievedAt = new Date().toISOString();
+          this.save();
+          return currentEval.currentLevel;
+        }
+        
+        return null;
+      },
+      
+      // Generiert eine eindeutige Zertifikatsnummer
+      generateCertificateNumber(level) {
+        const year = new Date().getFullYear();
+        const timestamp = Date.now().toString(36).toUpperCase();
+        const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+        return `BGA-${year}-${level}-${timestamp}${random}`;
+      },
+      
+      // ========================================
+      // SPRINT 3: Adaptive Fallauswahl & Spaced Repetition
+      // ========================================
+      
+      // Berechnet wann ein Fall zur Wiederholung fällig ist (Spaced Repetition)
+      getRepetitionDate(correctCount) {
+        // Intervalle in Tagen: 1, 3, 7, 14, 30
+        const intervals = [1, 3, 7, 14, 30];
+        const index = Math.min(correctCount - 1, intervals.length - 1);
+        return intervals[index];
+      },
+      
+      // Findet Fälle die zur Wiederholung fällig sind
+      getDueForRepetition() {
+        const caseHistory = {};
+        const now = new Date();
+        
+        // Sammle Historie für jeden Fall
+        this.profile.attempts.forEach(attempt => {
+          if (!caseHistory[attempt.caseId]) {
+            caseHistory[attempt.caseId] = {
+              caseId: attempt.caseId,
+              correctStreak: 0,
+              lastCorrectDate: null,
+              totalAttempts: 0
+            };
+          }
+          
+          caseHistory[attempt.caseId].totalAttempts++;
+          
+          if (attempt.isCorrect) {
+            caseHistory[attempt.caseId].correctStreak++;
+            caseHistory[attempt.caseId].lastCorrectDate = new Date(attempt.timestamp);
+          } else {
+            // Bei Fehler wird Streak zurückgesetzt
+            caseHistory[attempt.caseId].correctStreak = 0;
+          }
+        });
+        
+        // Prüfe welche Fälle fällig sind
+        const dueForRepetition = [];
+        
+        for (const caseId in caseHistory) {
+          const history = caseHistory[caseId];
+          
+          // Nur Fälle die mindestens einmal richtig waren
+          if (history.correctStreak > 0 && history.lastCorrectDate) {
+            const daysInterval = this.getRepetitionDate(history.correctStreak);
+            const nextDueDate = new Date(history.lastCorrectDate);
+            nextDueDate.setDate(nextDueDate.getDate() + daysInterval);
+            
+            // Ist der Fall überfällig?
+            if (now >= nextDueDate) {
+              const daysOverdue = Math.floor((now - nextDueDate) / (1000 * 60 * 60 * 24));
+              dueForRepetition.push({
+                caseId: parseInt(caseId),
+                daysOverdue: daysOverdue,
+                correctStreak: history.correctStreak,
+                priority: daysOverdue * 10 + history.correctStreak // Höhere Priorität je länger überfällig
+              });
+            }
+          }
+        }
+        
+        // Sortiere nach Priorität (am längsten überfällig zuerst)
+        dueForRepetition.sort((a, b) => b.priority - a.priority);
+        
+        return dueForRepetition;
+      },
+      
+      // Findet Fälle aus Schwachstellen-Bereichen
+      getWeaknessCases() {
+        const performance = this.getPerformanceByDisorder();
+        const weakDisorders = performance.filter(p => p.status === 'needs-work' && p.total >= 2);
+        
+        if (weakDisorders.length === 0) {
+          return [];
+        }
+        
+        // Sammle alle Fälle aus schwachen Bereichen
+        const weaknessCaseIds = [];
+        weakDisorders.forEach(disorder => {
+          CASES.forEach(c => {
+            if (c.primary === disorder.type) {
+              weaknessCaseIds.push(c.id);
+            }
+          });
+        });
+        
+        return weaknessCaseIds;
+      },
+      
+      // Findet noch unbearbeitete Fälle
+      getUnseenCases() {
+        const seenCaseIds = new Set(this.profile.attempts.map(a => a.caseId));
+        return CASES.filter(c => !seenCaseIds.has(c.id)).map(c => c.id);
+      },
+      
+      // Prüft ob User gerade frustriert sein könnte
+      isUserFrustrated() {
+        const recentAttempts = this.profile.attempts.slice(-3);
+        if (recentAttempts.length < 3) return false;
+        
+        // Frustration = 3 falsche Antworten in Folge
+        return recentAttempts.every(a => !a.isCorrect);
+      },
+      
+      // Findet einen "Erfolgsfall" zur Motivation
+      getMotivationalCase() {
+        const successfulCases = {};
+        
+        this.profile.attempts.forEach(attempt => {
+          if (attempt.isCorrect) {
+            if (!successfulCases[attempt.caseId]) {
+              successfulCases[attempt.caseId] = 0;
+            }
+            successfulCases[attempt.caseId]++;
+          }
+        });
+        
+        // Finde Fall mit meisten richtigen Antworten
+        let bestCase = null;
+        let maxCorrect = 0;
+        
+        for (const caseId in successfulCases) {
+          if (successfulCases[caseId] > maxCorrect) {
+            maxCorrect = successfulCases[caseId];
+            bestCase = parseInt(caseId);
+          }
+        }
+        
+        return bestCase;
+      },
+      
+      // Hauptmethode: Wählt den optimalen nächsten Fall
+      getOptimalNextCase(currentMode = 'basic') {
+        const stats = this.getBasicStats();
+        
+        // Spezialfall: Zu wenig Daten, gib zufälligen passenden Fall
+        if (stats.totalAttempts < 3) {
+          const availableCases = CASES.filter(c => c.mode === currentMode || currentMode === 'mixed');
+          const randomCase = availableCases[Math.floor(Math.random() * availableCases.length)];
+          return {
+            caseId: randomCase.id,
+            reason: 'exploration',
+            message: 'Lass uns mit einem Fall starten!'
+          };
+        }
+        
+        // Schritt 1: Prüfe auf Frustration
+        if (this.isUserFrustrated()) {
+          const motivationalCase = this.getMotivationalCase();
+          if (motivationalCase) {
+            return {
+              caseId: motivationalCase,
+              reason: 'motivation',
+              message: '💪 Hier ein Fall den du schon kennst - du schaffst das!'
+            };
+          }
+        }
+        
+        // Schritt 2: Höchste Priorität - Fällige Wiederholungen
+        const dueRepetitions = this.getDueForRepetition();
+        if (dueRepetitions.length > 0) {
+          const mostDue = dueRepetitions[0];
+          return {
+            caseId: mostDue.caseId,
+            reason: 'repetition',
+            message: `📄 Wiederholung: Diesen Fall hattest du vor ${mostDue.daysOverdue + this.getRepetitionDate(mostDue.correctStreak)} Tagen richtig.`
+          };
+        }
+        
+        // Schritt 3: Mittlere Priorität - Schwachstellen üben
+        const weaknessCases = this.getWeaknessCases();
+        if (weaknessCases.length > 0) {
+          // Wähle zufälligen Fall aus Schwachstellen
+          const randomWeaknessCase = weaknessCases[Math.floor(Math.random() * weaknessCases.length)];
+          return {
+            caseId: randomWeaknessCase,
+            reason: 'weakness',
+            message: '🎯 Dieser Fall trainiert einen Bereich wo du noch üben kannst.'
+          };
+        }
+        
+        // Schritt 4: Niedrige Priorität - Neue Fälle erkunden
+        const unseenCases = this.getUnseenCases();
+        if (unseenCases.length > 0) {
+          // Filtere nach aktuellem Modus
+          const suitableCases = unseenCases.filter(caseId => {
+            const caseObj = CASES.find(c => c.id === caseId);
+            return caseObj && (caseObj.mode === currentMode || currentMode === 'mixed');
+          });
+          
+          if (suitableCases.length > 0) {
+            const randomNewCase = suitableCases[Math.floor(Math.random() * suitableCases.length)];
+            return {
+              caseId: randomNewCase,
+              reason: 'exploration',
+              message: '→ Ein neuer Fall zur Erkundung!'
+            };
+          }
+        }
+        
+        // Fallback: Komplett zufällig
+        const availableCases = CASES.filter(c => c.mode === currentMode || currentMode === 'mixed');
+        const randomCase = availableCases[Math.floor(Math.random() * availableCases.length)];
+        return {
+          caseId: randomCase.id,
+          reason: 'random',
+          message: null
+        };
+      }
+    };
+
+    const CASES = [
+      {
+        id: 1, mode: 'basic', complexity: 'Basis',
+        context: '68-jähriger Patient mit bekannter COPD, zunehmende Dyspnoe seit 3 Tagen.',
+        ph: 7.28, pco2: 62, hco3: 28, be: 2, laktat: 1.2, na: 140, cl: 104, k: 4.1, glukose: 105,
+        primary: 'RESP_ACI', comp_basic: 'PARTIAL', comp_advanced: 'MET_PARTIAL',
+        explanation: {
+          pathophysiology: 'COPD-Exazerbation führt zu CO2-Retention durch Bronchospasmus.',
+          compensation: 'Nieren resorbieren vermehrt Bikarbonat. Dauert 3-5 Tage.',
+          nursing: 'Atemerleichternde Lagerung, Vigilanz-Monitoring, NIV-Optimierung.'
+        }
+      },
+      {
+        id: 2, mode: 'basic', complexity: 'Basis',
+        context: 'Postoperative Patientin, Opioide zur Schmerztherapie. Atemfrequenz 8/min.',
+        ph: 7.25, pco2: 68, hco3: 24, be: -1, laktat: 1.0, na: 138, cl: 103, k: 3.9, glukose: 98,
+        primary: 'RESP_ACI', comp_basic: 'NONE', comp_advanced: 'NONE',
+        explanation: {
+          pathophysiology: 'Opioide dämpfen das Atemzentrum, führen zu Hypoventilation.',
+          compensation: 'Keine Kompensation bei akutem Ereignis.',
+          nursing: 'SOFORT: Naloxon bereithalten, Atemfrequenz monitoren, O2-Gabe.'
+        }
+      },
+      {
+        id: 3, mode: 'basic', complexity: 'Basis',
+        context: '52-jähriger Patient, BMI 48, chronische Hypoventilation.',
+        ph: 7.36, pco2: 58, hco3: 32, be: 6, laktat: 1.1, na: 141, cl: 102, k: 4.2, glukose: 115,
+        primary: 'RESP_ACI', comp_basic: 'FULL', comp_advanced: 'MET_FULL',
+        explanation: {
+          pathophysiology: 'Extreme Adipositas beeinträchtigt Atemmechanik.',
+          compensation: 'Vollständige metabolische Kompensation, chronischer Zustand.',
+          nursing: 'Schlafapnoe-Screening, NIV-Therapie, Gewichtsreduktion.'
+        }
+      },
+      {
+        id: 4, mode: 'basic', complexity: 'Basis',
+        context: '32-jährige Patientin, Panikattacke mit Kribbeln, Schwindel.',
+        ph: 7.52, pco2: 28, hco3: 23, be: -1, laktat: 0.9, na: 140, cl: 105, k: 4.0, glukose: 98,
+        primary: 'RESP_ALK', comp_basic: 'NONE', comp_advanced: 'NONE',
+        explanation: {
+          pathophysiology: 'Psychogene Hyperventilation bei Angst, CO2-Abatmung.',
+          compensation: 'Akut, keine Zeit für Kompensation.',
+          nursing: 'Beruhigende Gesprächsführung, Atemübungen. NICHT in Tüte atmen!'
+        }
+      },
+      {
+        id: 5, mode: 'basic', complexity: 'Basis',
+        context: 'Patient nach Appendektomie, starke Schmerzen, schnelle Atmung.',
+        ph: 7.48, pco2: 32, hco3: 24, be: 0, laktat: 1.1, na: 139, cl: 104, k: 4.1, glukose: 110,
+        primary: 'RESP_ALK', comp_basic: 'NONE', comp_advanced: 'NONE',
+        explanation: {
+          pathophysiology: 'Schmerz führt zu Hyperventilation, CO2-Verlust.',
+          compensation: 'Keine Kompensation, frische Störung.',
+          nursing: 'Schmerztherapie optimieren! Nach Schmerzlinderung normalisiert sich die Atmung.'
+        }
+      },
+      {
+        id: 6, mode: 'basic', complexity: 'Basis',
+        context: '24-jähriger Diabetiker, Erbrechen, Insulin vergessen. BZ 420 mg/dl.',
+        ph: 7.18, pco2: 28, hco3: 10, be: -15, laktat: 2.1, na: 135, cl: 98, k: 5.2, glukose: 420,
+        primary: 'MET_ACI', comp_basic: 'PARTIAL', comp_advanced: 'RESP_PARTIAL',
+        explanation: {
+          pathophysiology: 'Insulinmangel führt zu Ketonkörper-Bildung, starke Azidose.',
+          compensation: 'Kussmaul-Atmung versucht Kompensation.',
+          nursing: 'NOTFALL! Volumengabe, Insulin-Perfusor, Kalium-Substitution, BZ-Kontrollen.'
+        }
+      },
+      {
+        id: 7, mode: 'basic', complexity: 'Basis',
+        context: '72-jährige nach Herzoperation, Urin unter 100ml/24h, Kreatinin 4.8.',
+        ph: 7.28, pco2: 36, hco3: 16, be: -9, laktat: 1.5, na: 138, cl: 108, k: 5.8, glukose: 115,
+        primary: 'MET_ACI', comp_basic: 'NONE', comp_advanced: 'NONE',
+        explanation: {
+          pathophysiology: 'Akutes Nierenversagen, Säuren werden nicht ausgeschieden.',
+          compensation: 'Keine Kompensation, akuter Prozess.',
+          nursing: 'Bilanzierung, Flüssigkeitsrestriktion, EKG-Monitoring wegen Hyperkaliämie, Dialyse vorbereiten.'
+        }
+      },
+      {
+        id: 8, mode: 'basic', complexity: 'Basis',
+        context: '45-jähriger mit Norovirus, über 15 wässrige Durchfälle pro Tag.',
+        ph: 7.30, pco2: 35, hco3: 17, be: -8, laktat: 1.2, na: 136, cl: 112, k: 3.2, glukose: 95,
+        primary: 'MET_ACI', comp_basic: 'NONE', comp_advanced: 'NONE',
+        explanation: {
+          pathophysiology: 'Bikarbonat-Verlust über Darm, hyperchlorämische Azidose.',
+          compensation: 'Noch keine Kompensation.',
+          nursing: 'Volumengabe mit Elektrolytlösungen, Kalium substituieren, Isolierung bei Norovirus.'
+        }
+      },
+      {
+        id: 9, mode: 'advanced', complexity: 'Advanced',
+        context: 'Patient mit kardiogenem Schock, RR 75/50, kaltschweißig.',
+        ph: 7.22, pco2: 32, hco3: 13, be: -12, laktat: 6.8, na: 138, cl: 104, k: 4.8, glukose: 185,
+        primary: 'MET_ACI', comp_basic: 'PARTIAL', comp_advanced: 'RESP_PARTIAL',
+        explanation: {
+          pathophysiology: 'Schock führt zu Gewebehypoxie, anaerober Stoffwechsel, Laktat-Akkumulation.',
+          compensation: 'Teilweise respiratorisch, aber insuffizient.',
+          nursing: 'KRITISCH! Volumengabe, Katecholamine, Laktat-Kontrollen, hämodynamisches Monitoring.'
+        }
+      },
+      {
+        id: 10, mode: 'advanced', complexity: 'Advanced',
+        context: 'Polytrauma, Milzruptur mit Schock, Hypothermie 34 Grad C.',
+        ph: 7.08, pco2: 48, hco3: 14, be: -15, laktat: 9.2, na: 145, cl: 115, k: 5.8, glukose: 185,
+        primary: 'MET_ACI', comp_basic: 'NONE', comp_advanced: 'C_MIXED',
+        explanation: {
+          pathophysiology: 'Letale Trias: Azidose plus Hypothermie plus Koagulopathie. Gemischte Störung.',
+          compensation: 'Keine Kompensation, zusätzliche respiratorische Azidose!',
+          nursing: 'SCHWERSTVERLETZTER! Damage Control Surgery, Massivtransfusion, Wiedererwärmung, permissive Hypotension.'
+        }
+      },
+      {
+        id: 11, mode: 'basic', complexity: 'Basis',
+        context: '24-jährige Patientin mit schwerem Asthma-Anfall, stark dyspnoisch trotz Salbutamol.',
+        ph: 7.22, pco2: 72, hco3: 25, be: -1, laktat: 1.3, na: 139, cl: 105, k: 3.7, glukose: 110,
+        primary: 'RESP_ACI', comp_basic: 'NONE', comp_advanced: 'NONE',
+        explanation: {
+          pathophysiology: 'Beim schweren Asthma-Anfall führt die massive Bronchialobstruktion zur Hypoventilation. Steigt der pCO₂ an, ist dies ein Alarmzeichen für drohende Erschöpfung.',
+          compensation: 'Akute Störung ohne Kompensation. Ein pCO₂ über 60 mmHg bei Asthma bedeutet drohende Atemerschöpfung und kann eine Intubationsindikation darstellen.',
+          nursing: 'NOTFALL! Intensivmonitoring, Intubationsbereitschaft, hochdosierte Kortikosteroide und Bronchodilatatoren, Sauerstoff-Hochfluss, beruhigende Gesprächsführung.'
+        }
+      },
+      {
+        id: 12, mode: 'basic', complexity: 'Basis',
+        context: 'Patient mit ALS, progrediente Atemschwäche, nächtliche Dyspnoe.',
+        ph: 7.33, pco2: 54, hco3: 28, be: 2, laktat: 0.9, na: 140, cl: 103, k: 4.0, glukose: 95,
+        primary: 'RESP_ACI', comp_basic: 'PARTIAL', comp_advanced: 'MET_PARTIAL',
+        explanation: {
+          pathophysiology: 'Bei ALS kommt es zur Degeneration der motorischen Neuronen mit progredienter Schwäche der Atemmuskulatur. Die Pumpfunktion der Lunge wird beeinträchtigt.',
+          compensation: 'Teilweise metabolische Kompensation durch renale Bikarbonat-Retention. Dies deutet auf eine bereits länger bestehende Hypoventilation hin.',
+          nursing: 'Regelmäßige Vitalkapazitätsmessungen, Beratung zu NIV-Therapie, Sekretmanagement, Hustenassistenz-Techniken. Frühzeitige Einbindung palliativmedizinischer Versorgung.'
+        }
+      },
+      {
+        id: 13, mode: 'basic', complexity: 'Basis',
+        context: 'Verkehrsunfall mit Rippenserienfraktur rechts, starke atemabhängige Schmerzen.',
+        ph: 7.30, pco2: 56, hco3: 26, be: 0, laktat: 1.8, na: 138, cl: 104, k: 4.3, glukose: 130,
+        primary: 'RESP_ACI', comp_basic: 'NONE', comp_advanced: 'NONE',
+        explanation: {
+          pathophysiology: 'Rippenfrakturen führen zu starken atemabhängigen Schmerzen und damit zur Schonatmung. Zusätzlich kann eine Lungenkontusion die Gasaustauschfläche reduzieren.',
+          compensation: 'Akute Störung ohne Kompensation. Das leicht erhöhte Laktat kann auf eine beginnende Gewebehypoxie oder Stressreaktion hinweisen.',
+          nursing: 'Adäquate Schmerztherapie (Epiduralkatheter erwägen), Atemtherapie mit Anleitung zu effektiver Hustentechnik, Mobilisation unter Schmerzschutz, Pneumonie-Prophylaxe.'
+        }
+      },
+      {
+        id: 14, mode: 'basic', complexity: 'Basis',
+        context: 'Beatmeter Patient auf Intensivstation, Alarm hoher pCO₂. Tidalvolumen zu niedrig.',
+        ph: 7.27, pco2: 65, hco3: 27, be: 1, laktat: 1.1, na: 141, cl: 105, k: 4.0, glukose: 105,
+        primary: 'RESP_ACI', comp_basic: 'PARTIAL', comp_advanced: 'MET_PARTIAL',
+        explanation: {
+          pathophysiology: 'Bei unzureichenden Beatmungsparametern wird nicht genug CO→ abgeatmet. Dies führt zur iatrogenen respiratorischen Azidose.',
+          compensation: 'Beginnende metabolische Kompensation. Bei beatmeten Patienten sollte jedoch primär die Beatmung optimiert werden.',
+          nursing: 'Beatmungsparameter mit Arzt besprechen und anpassen. Ursachen für erhöhten Atemwegswiderstand ausschließen: Tubuslage, Sekret, Bronchospasmus prüfen.'
+        }
+      },
+      {
+        id: 15, mode: 'basic', complexity: 'Basis',
+        context: 'Beatmeter Patient nach Schädel-Hirn-Trauma, Atemfrequenz erhöht wegen ICP.',
+        ph: 7.50, pco2: 30, hco3: 23, be: -1, laktat: 1.0, na: 140, cl: 103, k: 4.0, glukose: 105,
+        primary: 'RESP_ALK', comp_basic: 'NONE', comp_advanced: 'NONE',
+        explanation: {
+          pathophysiology: 'Bei erhöhtem intrakraniellem Druck wird manchmal therapeutisch eine leichte Hyperventilation eingesetzt. Der niedrige pCO₂ führt zu zerebraler Vasokonstriktion.',
+          compensation: 'Keine Kompensation bei akuter, therapeutisch gewollter Hyperventilation.',
+          nursing: 'Bei SHT-Patienten ist dies teils gewollt, aber engmaschiges ICP-Monitoring erforderlich. Ziel-pCO₂ meist 32 bis 35 mmHg, niemals unter 30 mmHg. Zu starke Hyperventilation kann Hirndurchblutung gefährden.'
+        }
+      },
+      {
+        id: 16, mode: 'basic', complexity: 'Basis',
+        context: 'Bergsteiger in 3500 Meter Höhe, Kopfschmerzen, Übelkeit, Schwindel, schnelle Atmung.',
+        ph: 7.46, pco2: 33, hco3: 23, be: -1, laktat: 1.2, na: 138, cl: 104, k: 4.1, glukose: 95,
+        primary: 'RESP_ALK', comp_basic: 'NONE', comp_advanced: 'NONE',
+        explanation: {
+          pathophysiology: 'In großer Höhe ist der Sauerstoffpartialdruck niedriger. Der Körper reagiert mit kompensatorischer Hyperventilation, dabei wird auch mehr CO→ abgeatmet.',
+          compensation: 'Noch keine Kompensation, da die Höhenexposition erst seit kurzem besteht. Bei längerer Akklimatisation würden die Nieren durch Bikarbonat-Ausscheidung kompensieren.',
+          nursing: 'Bei Höhenkrankheit ist Abstieg die beste Therapie. Symptomatische Behandlung mit Analgetika gegen Kopfschmerzen. Bei Verschlechterung: sofortiger Abstieg lebensnotwendig. Prophylaxe durch langsame Akklimatisation.'
+        }
+      },
+      {
+        id: 17, mode: 'basic', complexity: 'Basis',
+        context: 'Patientin mit Harnwegsinfekt, seit heute Fieber 39 Grad, Tachypnoe 28 pro Minute, verwirrt.',
+        ph: 7.48, pco2: 31, hco3: 23, be: -1, laktat: 2.4, na: 137, cl: 105, k: 4.3, glukose: 145,
+        primary: 'RESP_ALK', comp_basic: 'NONE', comp_advanced: 'NONE',
+        explanation: {
+          pathophysiology: 'Bei beginnender Sepsis führen Entzündungsmediatoren zu einer Stimulation des Atemzentrums. Dies ist eines der frühen Zeichen einer Sepsis. Das erhöhte Laktat ist wichtiger Hinweis auf systemische Entzündung.',
+          compensation: 'Akute Störung ohne Kompensation. Wichtig: Das erhöhte Laktat deutet darauf hin, dass sich möglicherweise bald auch eine metabolische Azidose entwickeln wird.',
+          nursing: 'SEPSIS-Verdacht gleich NOTFALL! Blutkulturen abnehmen, dann sofort Breitspektrum-Antibiotika innerhalb einer Stunde, Flüssigkeitstherapie nach Protokoll. Engmaschiges Monitoring, qSOFA-Score dokumentieren.'
+        }
+      },
+      {
+        id: 18, mode: 'basic', complexity: 'Basis',
+        context: 'Patient nach Verkehrsunfall, plötzliche Dyspnoe und Thoraxschmerz, frisch operiert vor fünf Tagen.',
+        ph: 7.50, pco2: 29, hco3: 22, be: -2, laktat: 1.8, na: 139, cl: 106, k: 4.0, glukose: 115,
+        primary: 'RESP_ALK', comp_basic: 'NONE', comp_advanced: 'NONE',
+        explanation: {
+          pathophysiology: 'Bei Lungenembolie führen die plötzliche Dyspnoe und Hypoxie zu reflektorischer Hyperventilation. Zusätzlich werden Irritationsrezeptoren in der Lunge stimuliert. Das leicht erhöhte Laktat kann auf rechtsventrikuläre Belastung hinweisen.',
+          compensation: 'Keine Kompensation bei akutem Ereignis. Die respiratorische Alkalose ist hier ein wichtiger diagnostischer Hinweis bei Verdacht auf Lungenembolie.',
+          nursing: 'Lungenembolie gleich NOTFALL! Sofortige ärztliche Untersuchung, D-Dimer-Bestimmung, CT-Angiographie. Sauerstoff-Gabe, Oberkörperhochlagerung, Antikoagulation nach Anordnung. Thrombose-Prophylaxe-Standards überprüfen.'
+        }
+      },
+      {
+        id: 19, mode: 'basic', complexity: 'Basis',
+        context: 'Dialyse-Patient, letzte Dialyse vor vier Tagen, heute terminliche Dialyse ausgefallen.',
+        ph: 7.32, pco2: 32, hco3: 16, be: -9, laktat: 1.3, na: 140, cl: 106, k: 5.5, glukose: 108,
+        primary: 'MET_ACI', comp_basic: 'PARTIAL', comp_advanced: 'RESP_PARTIAL',
+        explanation: {
+          pathophysiology: 'Bei chronischer Niereninsuffizienz akkumulieren Stoffwechselsäuren kontinuierlich. Die Dialyse entfernt diese Säuren regelmäßig. Wenn die Dialyse ausfällt, verschlechtert sich die Azidose. Die Hyperkaliämie ist typisch und potenziell lebensbedrohlich.',
+          compensation: 'Teilweise respiratorische Kompensation durch Hyperventilation. Bei chronischen Dialysepatienten ist eine leichte metabolische Azidose oft chronisch vorhanden.',
+          nursing: 'DRINGEND Dialyse organisieren! EKG-Kontrolle wegen Hyperkaliämie. Flüssigkeits- und Kalium-Restriktion bis zur Dialyse. Bei Kalium über sechs oder EKG-Veränderungen: Notfall-Maßnahmen wie Calcium intravenös, Insulin plus Glukose.'
+        }
+      },
+      {
+        id: 20, mode: 'basic', complexity: 'Basis',
+        context: 'Diabetikerin unter Metformin, seit zwei Tagen Durchfall und Erbrechen, zunehmend verwirrt.',
+        ph: 7.20, pco2: 30, hco3: 11, be: -14, laktat: 8.2, na: 137, cl: 105, k: 4.9, glukose: 95,
+        primary: 'MET_ACI', comp_basic: 'PARTIAL', comp_advanced: 'RESP_PARTIAL',
+        explanation: {
+          pathophysiology: 'Metformin hemmt die Glukoneogenese in der Leber. Bei eingeschränkter Nierenfunktion durch Exsikkose führt dies zur Laktat-Akkumulation. Laktat kann nicht mehr zu Glukose umgewandelt werden. Das extrem hohe Laktat und der niedrige Blutzucker sind typisch.',
+          compensation: 'Teilweise respiratorische Kompensation, aber bei so schwerem Laktat-Anstieg insuffizient. Die Verwirrtheit ist Zeichen der schweren Azidose und Gewebehypoxie.',
+          nursing: 'NOTFALL - Intensivstation! Metformin SOFORT absetzen. Volumengabe, Bikarbonat-Pufferung bei pH unter 7.1, bei refraktären Fällen: Dialyse zur Laktat- und Metformin-Elimination. Glukose-Infusion wegen Hypoglykämie-Gefahr.'
+        }
+      },
+      {
+        id: 21, mode: 'basic', complexity: 'Basis',
+        context: 'Junger Mann nach exzessivem Crossfit-Training, extreme Muskelschmerzen, Cola-farbener Urin.',
+        ph: 7.26, pco2: 33, hco3: 14, be: -11, laktat: 3.2, na: 139, cl: 106, k: 5.6, glukose: 110,
+        primary: 'MET_ACI', comp_basic: 'PARTIAL', comp_advanced: 'RESP_PARTIAL',
+        explanation: {
+          pathophysiology: 'Bei Rhabdomyolyse werden durch Muskelzellzerfall massiv intrazelluläre Substanzen freigesetzt: Myoglobin, Kalium, Phosphat, Purine. Die Hyperurikämie und Phosphat-Freisetzung führen zur metabolischen Azidose. Myoglobin ist nephrotoxisch und kann zu akutem Nierenversagen führen.',
+          compensation: 'Teilweise respiratorische Kompensation durch Hyperventilation. Die Kreatinkinase wäre hier extrem erhöht über zehntausend U pro Liter, diagnostisch wichtig.',
+          nursing: 'Aggressive Volumengabe von sechs bis zwölf Liter pro Tag zur Ausschwemmung von Myoglobin und Nierenschutz. Urin-Alkalisierung mit Natriumbikarbonat erwägen, pH über 6.5 anstreben. Stündliche Urinkontrollen. Hyperkaliämie-Monitoring am EKG. Bei Oligurie trotz Volumengabe: Nierenersatzverfahren.'
+        }
+      },
+      {
+        id: 22, mode: 'basic', complexity: 'Basis',
+        context: 'Patient nach Ingestion von Frostschutzmittel vor sechs Stunden, zunehmend somnolent, Sehstörungen.',
+        ph: 7.15, pco2: 26, hco3: 9, be: -16, laktat: 4.5, na: 138, cl: 98, k: 4.2, glukose: 105,
+        primary: 'MET_ACI', comp_basic: 'PARTIAL', comp_advanced: 'RESP_PARTIAL',
+        explanation: {
+          pathophysiology: 'Ethylenglykol wird in der Leber zu toxischen Metaboliten abgebaut: Glykolsäure, Oxalsäure. Diese verursachen eine schwere metabolische Azidose mit erhöhter Anionenlücke. Die Oxalat-Kristalle schädigen die Nieren. Die Sehstörungen entstehen durch Schädigung des Nervus opticus.',
+          compensation: 'Teilweise respiratorische Kompensation, aber insuffizient bei so schwerer Vergiftung. Die osmotische Lücke ist hier erhöht, wichtiges diagnostisches Kriterium neben der Anionenlücke.',
+          nursing: 'VERGIFTUNGS-NOTFALL! Giftnotruf einschalten. Antidot: Fomepizol hemmt Alkoholdehydrogenase, verhindert toxische Metaboliten, oder alternativ Ethanol-Infusion. Hämodialyse bei schwerer Vergiftung. Volumengabe, Bikarbonat-Pufferung. Thiamin und Pyridoxin geben. Regelmäßige Osmolalität-Kontrollen.'
+        }
+      },
+      {
+        id: 23, mode: 'basic', complexity: 'Basis',
+        context: 'Patient drei Wochen nach Darm-OP mit Ileostoma, Ausscheidung über zwei Liter pro Tag, schwach und schwindelig.',
+        ph: 7.31, pco2: 36, hco3: 18, be: -7, laktat: 1.1, na: 134, cl: 110, k: 3.1, glukose: 92,
+        primary: 'MET_ACI', comp_basic: 'NONE', comp_advanced: 'NONE',
+        explanation: {
+          pathophysiology: 'Bei Ileostoma mit hohem Output gehen große Mengen bikarbonatreicher Flüssigkeit verloren. Der Dickdarm, der normalerweise Wasser und Bikarbonat rückresorbiert, fehlt. Dies führt zur hyperchlorämischen metabolischen Azidose. Die Hypokaliämie und Hyponatriämie entstehen durch die Elektrolytverluste.',
+          compensation: 'Keine respiratorische Kompensation erkennbar. Die Störung entwickelt sich subakut über Tage bis Wochen.',
+          nursing: 'Stomaberatung einschalten! Motilitätshemmer erwägen wie Loperamid. Volumengabe mit balancierten Elektrolytlösungen. Orale Rehydratationslösung, spezielle Stoma-Lösungen. Kalium und Magnesium substituieren. Patienten-Schulung: ausreichend Trinken von zwei bis drei Liter pro Tag, Meiden von stark abführenden Nahrungsmitteln.'
+        }
+      },
+      {
+        id: 24, mode: 'basic', complexity: 'Basis',
+        context: 'Patient mit Pneumonie-Sepsis, Fieber 39.5 Grad, Tachykardie, Hypotonie trotz Volumengabe.',
+        ph: 7.25, pco2: 30, hco3: 13, be: -12, laktat: 5.2, na: 136, cl: 105, k: 4.6, glukose: 175,
+        primary: 'MET_ACI', comp_basic: 'PARTIAL', comp_advanced: 'RESP_PARTIAL',
+        explanation: {
+          pathophysiology: 'Bei Sepsis führen Entzündungsmediatoren zu Mikrozirkulationsstörungen und Gewebehypoxie. Trotz ausreichender Sauerstoff-Sättigung können die Zellen den Sauerstoff nicht verwerten, sogenannte zytopathische Hypoxie. Dies führt zu anaerober Glykolyse und Laktat-Akkumulation. Das Laktat ist hier Marker für Organdysfunktion und Mortalität. Laktat über vier mmol pro Liter definiert den septischen Schock.',
+          compensation: 'Teilweise respiratorische Kompensation durch septische Hyperventilation. Der niedrige pCO₂ zeigt die Atemantwort auf die Azidose und ist gleichzeitig Zeichen der Sepsis selbst.',
+          nursing: 'SEPSIS gleich NOTFALL! Sepsis-Bundle innerhalb einer Stunde: Blutkulturen, Antibiotika, Volumengabe dreißig ml pro kg, Laktat-Kontrolle. Katecholamine bei persistierender Hypotonie, Noradrenalin ist first-line. Focus-Sanierung hier: Pneumonie-Therapie. Engmaschiges Monitoring, Organfunktionen überwachen. Laktat-Clearance ist wichtiger Verlaufsparameter.'
+        }
+      },
+      {
+        id: 25, mode: 'advanced', complexity: 'Advanced',
+        context: 'Patient mit ausgedehnter Darmresektion, chronische Diarrhoe, neurologische Symptome wie Ataxie, undeutliche Sprache.',
+        ph: 7.28, pco2: 31, hco3: 14, be: -11, laktat: 1.8, na: 137, cl: 106, k: 3.8, glukose: 95,
+        primary: 'MET_ACI', comp_basic: 'PARTIAL', comp_advanced: 'RESP_PARTIAL',
+        explanation: {
+          pathophysiology: 'Bei Kurzdarmsyndrom entsteht durch bakterielle Fehlbesiedlung D-Laktat im Gegensatz zum normalen L-Laktat. Standard-Laktat-Tests messen nur L-Laktat, daher ist das gemessene Laktat hier normal niedrig trotz schwerer Azidose. D-Laktat ist neurotoxisch und verursacht die charakteristischen neurologischen Symptome. Die erhöhte Anionenlücke trotz normalem Laktat ist der diagnostische Hinweis.',
+          compensation: 'Teilweise respiratorische Kompensation. Diese seltene Form der Azidose wird oft fehldiagnostiziert, weil das Standard-Laktat nicht erhöht ist. Man muss gezielt D-Laktat bestimmen.',
+          nursing: 'Spezialfall! D-Laktat muss speziell angefordert werden, nicht im Standard-Labor. Therapie: Antibiotika gegen bakterielle Fehlbesiedlung, Probiotika, Ernährungsumstellung kohlenhydratarm. Neurologische Symptome bilden sich nach Behandlung meist zurück. Patienten mit Kurzdarmsyndrom benötigen spezialisierte Ernährungsberatung. Cave: diese Patienten sind oft unterernährt und benötigen gegebenenfalls parenterale Ernährung.'
+        }
+      },
+      {
+        id: 26, mode: 'advanced', complexity: 'Advanced',
+        context: 'Diabetiker mit Herzinsuffizienz, nimmt Metformin, jetzt kardiogene Dekompensation mit Ödemen.',
+        ph: 7.19, pco2: 28, hco3: 10, be: -15, laktat: 9.5, na: 132, cl: 98, k: 5.4, glukose: 78,
+        primary: 'MET_ACI', comp_basic: 'PARTIAL', comp_advanced: 'RESP_PARTIAL',
+        explanation: {
+          pathophysiology: 'Bei kardialer Dekompensation kommt es zur Gewebehypoperfusion. In Kombination mit Metformin, das die mitochondriale Atmung hemmt, entsteht die Metformin-assoziierte Laktatazidose MALA. Die eingeschränkte Nierenfunktion bei Herzinsuffizienz führt zu Metformin-Akkumulation. Das extrem hohe Laktat von 9.5 und die Hypoglykämie trotz Diabetes sind charakteristisch. Die Hyponatriämie ist typisch für dekompensierte Herzinsuffizienz.',
+          compensation: 'Respiratorische Teilkompensation, aber bei so extremer Azidose insuffizient. MALA hat eine hohe Mortalität von dreißig bis fünfzig Prozent.',
+          nursing: 'HÖCHSTE NOTFALLSTUFE! Intensivstation, Metformin sofort stoppen. Herzinsuffizienz-Therapie optimieren mit Diuretika, Katecholamine bei Bedarf. Bikarbonat-Pufferung bei pH unter 7.1. Hämodialyse erwägen, entfernt Metformin und Laktat. Glukose-Infusion wegen Hypoglykämie-Risiko. Cave: Metformin ist bei schwerer Herzinsuffizienz NYHA drei bis vier kontraindiziert, hätte nie gegeben werden dürfen.'
+        }
+      },
+      {
+        id: 27, mode: 'advanced', complexity: 'Advanced',
+        context: 'Beatmeter Patient, seit fünf Tagen Propofol-Dauersedierung, jetzt Bradykardie, grünlicher Urin, Herzrhythmusstörungen.',
+        ph: 7.20, pco2: 35, hco3: 13, be: -12, laktat: 7.8, na: 138, cl: 105, k: 5.9, glukose: 45,
+        primary: 'MET_ACI', comp_basic: 'NONE', comp_advanced: 'NONE',
+        explanation: {
+          pathophysiology: 'Das Propofol-Infusions-Syndrom ist eine seltene, aber lebensbedrohliche Komplikation bei Langzeit-Propofol-Gabe über achtundvierzig Stunden, über vier mg pro kg pro Stunde. Es kommt zu mitochondrialer Dysfunktion mit Laktatazidose, Rhabdomyolyse daher der grüne Urin durch Myoglobin, Herzversagen und Hyperkaliämie. Die Hypoglykämie entsteht durch gestörte Glukoneogenese. Triglyzeride sind massiv erhöht über tausend mg pro dl.',
+          compensation: 'Keine Kompensation bei akutem Organversagen. Die Bradykardie und Arrhythmien sind Zeichen der kardialen Beteiligung. PRIS hat eine Mortalität von dreißig bis achtzig Prozent.',
+          nursing: 'LEBENSBEDROHLICHER NOTFALL! Propofol SOFORT stoppen, auf alternatives Sedativum umstellen wie Midazolam. Intensivtherapie: Volumengabe, Pufferung, bei Herzversagen: Katecholamine, gegebenenfalls ECMO erwägen. Dialyse bei refraktärer Azidose. Triglyzeride, CK, Myoglobin kontrollieren. Cave: bei Kindern und auf Intensivstation besonders aufmerksam sein, PRIS vermeiden durch Dosislimitierung und zeitliche Begrenzung von Propofol.'
+        }
+      },
+      {
+        id: 28, mode: 'advanced', complexity: 'Advanced',
+        context: 'Leukämie-Patient, zweiter Tag nach Chemotherapie-Beginn, Oligurie, Herzrhythmusstörungen.',
+        ph: 7.24, pco2: 30, hco3: 12, be: -13, laktat: 2.1, na: 136, cl: 104, k: 6.8, glukose: 105,
+        primary: 'MET_ACI', comp_basic: 'PARTIAL', comp_advanced: 'RESP_PARTIAL',
+        explanation: {
+          pathophysiology: 'Beim Tumor-Lyse-Syndrom werden durch den massiven Zerfall von Tumorzellen große Mengen intrazellulärer Substanzen freigesetzt: Kalium, Phosphat, Purine. Die Purine werden zu Harnsäure abgebaut, die ausfällt und die Nieren schädigt, akutes Nierenversagen. Die Hyperphosphatämie bindet Calcium, Hypokalzämie mit Tetanie-Risiko. Die metabolische Azidose entsteht durch Nierenversagen und Phosphat-Akkumulation. Die Hyperkaliämie ist extrem gefährlich, Herzstillstand-Risiko.',
+          compensation: 'Teilweise respiratorische Kompensation, aber bei so schwerer Störung insuffizient. Dies ist ein onkologischer Notfall.',
+          nursing: 'ONKOLOGISCHER NOTFALL! Intensivmonitoring mit Tele-EKG wegen Hyperkaliämie. Aggressive Hyperhydratation drei Liter pro m² pro Tag, Urin-Alkalisierung. Rasburicase spaltet Harnsäure. Bei Hyperkaliämie über 6.5: Notfall-Management mit Calcium intravenös, Insulin plus Glukose. Dialyse bei refraktärem Nierenversagen. Phosphatbinder, Calcium-Substitution bei Hypokalzämie. Engmaschige Laborkontrollen alle vier bis sechs Stunden.'
+        }
+      },
+      {
+        id: 29, mode: 'advanced', complexity: 'Advanced',
+        context: 'Patientin mit unbehandelter Hyperthyreose, jetzt Fieber vierzig Grad, Tachykardie hundertsechzig pro Minute, massiv geschwitzt.',
+        ph: 7.51, pco2: 27, hco3: 21, be: -3, laktat: 3.2, na: 148, cl: 110, k: 3.0, glukose: 165,
+        primary: 'RESP_ALK', comp_basic: 'NONE', comp_advanced: 'MET_PARTIAL',
+        explanation: {
+          pathophysiology: 'Die thyreotoxische Krise ist ein lebensbedrohlicher Notfall. Der massive Überschuss an Schilddrüsenhormonen führt zu extremer Stoffwechselsteigerung mit Hyperventilation. Die Hypernatriämie von einhundertachtundvierzig und Hypokaliämie von drei entstehen durch Schwitzen und gesteigerte Diurese. Das erhöhte Laktat zeigt die metabolische Entgleisung.',
+          compensation: 'Beginnende metabolische Kompensation durch renale Bikarbonat-Ausscheidung, HCO₃⁻ und BE leicht erniedrigt. Aber: Die Situation ist zu akut für vollständige Kompensation. Das Laktat deutet zusätzlich auf eine beginnende metabolische Azidose hin.',
+          nursing: 'NOTFALL - Intensivstation! Thyreostatika hochdosiert, Betablocker Cave: keine Kontraindikationen, Cortison, Flüssigkeit und Elektrolyte. Kühlung keine Eisbäder. Monitoring von Temperatur, Herzfrequenz, Blutdruck. Die Hypokaliämie muss dringend korrigiert werden, Arrhythmie-Gefahr bei Tachykardie. Mortalität ohne Behandlung bis dreißig Prozent.'
+        }
+      },
+      {
+        id: 30, mode: 'advanced', complexity: 'Advanced',
+        context: 'Schwangere in sechsunddreißigster SSW, leichte Luftnot beim Treppensteigen, ansonsten beschwerdefrei.',
+        ph: 7.44, pco2: 32, hco3: 21, be: -3, laktat: 1.0, na: 136, cl: 104, k: 3.8, glukose: 88,
+        primary: 'RESP_ALK', comp_basic: 'PARTIAL', comp_advanced: 'MET_PARTIAL',
+        explanation: {
+          pathophysiology: 'In der Schwangerschaft führt das Hormon Progesteron zu einer gesteigerten Atemantwort. Zusätzlich drückt der wachsende Uterus das Zwerchfell nach oben, was die funktionelle Residualkapazität reduziert. Der Körper kompensiert mit erhöhter Atemfrequenz. Dies ist eine physiologische Anpassung an die Schwangerschaft.',
+          compensation: 'Teilweise metabolische Kompensation durch die Nieren. Dies zeigt, dass die Hyperventilation schon länger besteht. Diese BGA-Veränderungen sind für das dritte Trimenon normal und stellen keine Krankheit dar.',
+          nursing: 'Schwangere über die physiologischen Veränderungen aufklären, dies ist normal. Atemübungen können helfen, mit der Dyspnoe besser umzugehen. Eisenstatus prüfen, Anämie kann Dyspnoe verstärken. Bei starker Verschlechterung oder zusätzlichen Symptomen wie Brustschmerz, starke Ödeme: an Präeklampsie oder Lungenembolie denken.'
+        }
+      },
+      {
+        id: 31, mode: 'basic', complexity: 'Basis',
+        context: 'Patientin mit unstillbarem Erbrechen seit drei Tagen, Gastroenteritis, kann nichts bei sich behalten.',
+        ph: 7.52, pco2: 45, hco3: 36, be: 10, laktat: 1.0, na: 138, cl: 92, k: 2.8, glukose: 95,
+        primary: 'MET_ALK', comp_basic: 'PARTIAL', comp_advanced: 'RESP_PARTIAL',
+        explanation: {
+          pathophysiology: 'Bei anhaltendem Erbrechen geht Magensäure verloren, die reich an Salzsäure ist. Der Körper verliert also Wasserstoff-Ionen und Chlorid. Dies führt zur metabolischen Alkalose. Die Hypokaliämie entsteht durch renale Verluste, da die Niere bei Alkalose vermehrt Kalium ausscheidet. Die Hypochlorämie ist charakteristisch für diese Form der Alkalose.',
+          compensation: 'Teilweise respiratorische Kompensation durch Hypoventilation. Der Körper versucht, durch verminderte Atmung CO→ zurückzuhalten und so den pH zu senken. Der pCO₂ ist leicht erhöht.',
+          nursing: 'Volumengabe mit NaCl 0.9 Prozent zur Korrektur der Chlorid-Depletion. Kalium-Substitution ist essentiell, aber Vorsicht: nur bei ausreichender Diurese geben. Antiemetika zur Unterbrechung des Erbrechens. Cave: Die Hypokaliämie kann zu Herzrhythmusstörungen führen, EKG-Kontrolle empfohlen.'
+        }
+      },
+      {
+        id: 32, mode: 'basic', complexity: 'Basis',
+        context: 'Patient auf Intensivstation, Magensonde läuft seit fünf Tagen auf Sog, große Mengen Magensekret.',
+        ph: 7.50, pco2: 44, hco3: 34, be: 8, laktat: 0.9, na: 140, cl: 94, k: 3.0, glukose: 105,
+        primary: 'MET_ALK', comp_basic: 'PARTIAL', comp_advanced: 'RESP_PARTIAL',
+        explanation: {
+          pathophysiology: 'Wenn eine Magensonde kontinuierlich Magensekret absaugt, geht wie beim Erbrechen Salzsäure verloren. Pro Liter Magensaft gehen etwa 100 mmol Chlorid und entsprechend Wasserstoff-Ionen verloren. Dies ist eine iatrogene metabolische Alkalose.',
+          compensation: 'Teilweise respiratorische Kompensation durch leichte Hypoventilation. Bei beatmeten Patienten kann diese Kompensation durch die Beatmungseinstellung begrenzt sein.',
+          nursing: 'Magensonden-Management überprüfen: Ist die kontinuierliche Absaugung wirklich notwendig oder kann auf intermittierende Absaugung umgestellt werden? Chlorid- und Kalium-Substitution. Protonenpumpeninhibitoren reduzieren die Magensäureproduktion. Bei schwerer Alkalose: H2-Blocker oder PPI erwägen.'
+        }
+      },
+      {
+        id: 33, mode: 'basic', complexity: 'Basis',
+        context: 'Herzinsuffizienz-Patientin unter Furosemid-Hochdosis-Therapie, heute sehr schwach, Muskelkrämpfe.',
+        ph: 7.48, pco2: 43, hco3: 32, be: 6, laktat: 1.1, na: 136, cl: 96, k: 2.6, glukose: 110,
+        primary: 'MET_ALK', comp_basic: 'PARTIAL', comp_advanced: 'RESP_PARTIAL',
+        explanation: {
+          pathophysiology: 'Schleifendiuretika wie Furosemid führen zu einem massiven Verlust von Chlorid und Kalium über die Niere. Der Chlorid-Verlust ist der primäre Mechanismus der metabolischen Alkalose. Zusätzlich aktiviert die Volumenkontraktion das Renin-Angiotensin-Aldosteron-System, was die Alkalose weiter verstärkt. Die Hypokaliämie ist bei Diuretika-Therapie besonders gefährlich.',
+          compensation: 'Teilweise respiratorische Kompensation. Die Muskelkrämpfe entstehen durch die Hypokaliämie und die alkalosebedingte Verschiebung von ionisiertem Calcium.',
+          nursing: 'Diuretika-Dosis mit Arzt besprechen, eventuell reduzieren oder Kalium-sparende Diuretika ergänzen wie Spironolacton. Aggressive Kalium-Substitution, Ziel-Kalium über 4.0 mmol pro Liter. Magnesium kontrollieren und substituieren, Magnesiummangel verhindert Kalium-Aufnahme in die Zellen. EKG-Monitoring wegen Arrhythmie-Risiko bei Hypokaliämie.'
+        }
+      },
+      {
+        id: 34, mode: 'basic', complexity: 'Basis',
+        context: 'Patient mit Hyperaldosteronismus, Hypertonie therapierefraktär, Muskelschwäche, häufiges Wasserlassen.',
+        ph: 7.46, pco2: 42, hco3: 30, be: 5, laktat: 0.8, na: 144, cl: 98, k: 2.4, glukose: 100,
+        primary: 'MET_ALK', comp_basic: 'PARTIAL', comp_advanced: 'RESP_PARTIAL',
+        explanation: {
+          pathophysiology: 'Bei Hyperaldosteronismus produziert die Nebenniere übermäßig Aldosteron. Dies führt zu vermehrter Natrium-Rückresorption und Kalium-Ausscheidung in der Niere. Parallel werden Wasserstoff-Ionen ausgeschieden, was zur metabolischen Alkalose führt. Die schwere Hypokaliämie unter 2.5 ist typisch und kann zu Lähmungen führen.',
+          compensation: 'Teilweise respiratorische Kompensation. Die Muskelschwäche entsteht durch die ausgeprägte Hypokaliämie.',
+          nursing: 'Aldosteron-Antagonist wie Spironolacton ist die kausale Therapie. Großzügige Kalium-Substitution, oft sind sehr hohe Dosen nötig. Blutdruck-Monitoring. Bei schwerer Hypokaliämie unter 2.5: kontinuierliche Kalium-Infusion über Perfusor erwägen, nie als Bolus geben. EKG-Monitoring obligat. Nach Diagnosestellung eventuell operative Therapie bei Nebennieren-Adenom.'
+        }
+      },
+      {
+        id: 35, mode: 'basic', complexity: 'Basis',
+        context: 'Patient nach massiver Bluttransfusion, zehn Erythrozytenkonzentrate in drei Stunden, jetzt Kribbeln in Händen.',
+        ph: 7.46, pco2: 41, hco3: 29, be: 4, laktat: 1.2, na: 139, cl: 100, k: 3.8, glukose: 105,
+        primary: 'MET_ALK', comp_basic: 'NONE', comp_advanced: 'NONE',
+        explanation: {
+          pathophysiology: 'Erythrozytenkonzentrate enthalten Citrat als Antikoagulans. Bei massiver Transfusion wird viel Citrat infundiert, das in der Leber zu Bikarbonat verstoffwechselt wird. Dies führt zur metabolischen Alkalose. Das Kribbeln entsteht, weil Citrat Calcium bindet und eine Hypokalzämie verursacht, verstärkt durch die Alkalose.',
+          compensation: 'Keine Kompensation erkennbar bei akutem Ereignis. Diese Form der Alkalose ist selbstlimitierend und bessert sich nach Beendigung der Transfusion.',
+          nursing: 'Calcium-Substitution bei symptomatischer Hypokalzämie, Calcium-Gluconat langsam intravenös. Bei Massivtransfusion: prophylaktische Calcium-Gabe erwägen. Gerinnungsmonitoring, da Citrat auch die Gerinnung beeinflusst. Diese Form der Alkalose ist meist mild und bedarf keiner spezifischen Therapie außer Calcium-Substitution.'
+        }
+      },
+      {
+        id: 36, mode: 'advanced', complexity: 'Advanced',
+        context: 'Intensivpatient, mechanisch beatmet, wurde für Bronchoskopie stark hyperventiliert, danach Bikarbonat-Gabe.',
+        ph: 7.58, pco2: 38, hco3: 35, be: 10, laktat: 1.0, na: 142, cl: 96, k: 3.4, glukose: 115,
+        primary: 'MET_ALK', comp_basic: 'NONE', comp_advanced: 'C_MIXED',
+        explanation: {
+          pathophysiology: 'Dies ist eine iatrogene gemischte Alkalose. Bei der Bronchoskopie wurde der Patient hyperventiliert, was zu respiratorischer Alkalose führte. Wenn dann zusätzlich Bikarbonat gegeben wurde, entsteht eine additive Störung. Beide Komponenten treiben den pH nach oben. Der pCO₂ hat sich nach der Bronchoskopie normalisiert, aber das Bikarbonat ist massiv erhöht. Dies ist eine der schwersten Formen der Alkalose.',
+          compensation: 'Keine Kompensation möglich, da beide Systeme in die gleiche Richtung verschoben sind. Eine gemischte Alkalose ist selten, aber kann bei iatrogenen Ursachen auftreten. Der pH über 7.55 ist gefährlich.',
+          nursing: 'Beatmung anpassen, keine weitere Hyperventilation. Keine weiteren Bikarbonat-Gaben. Chlorid-reiche Infusionen geben wie NaCl 0.9 Prozent. Bei pH über 7.6: Acetazolamid erwägen, hemmt renale Bikarbonat-Rückresorption. Kalium überwachen und substituieren. Monitoring auf Krampfanfälle bei schwerer Alkalose, da diese die zerebrale Durchblutung reduziert.'
+        }
+      },
+      {
+        id: 37, mode: 'advanced', complexity: 'Advanced',
+        context: 'Patient mit Cushing-Syndrom, stammbetonte Adipositas, Vollmondgesicht, seit Wochen Muskelschwäche.',
+        ph: 7.47, pco2: 42, hco3: 30, be: 5, laktat: 0.9, na: 146, cl: 98, k: 2.5, glukose: 185,
+        primary: 'MET_ALK', comp_basic: 'PARTIAL', comp_advanced: 'RESP_PARTIAL',
+        explanation: {
+          pathophysiology: 'Beim Cushing-Syndrom ist zu viel Cortisol im Körper. Cortisol hat eine schwache mineralocorticoide Wirkung, ähnlich wie Aldosteron. Dies führt zu Natrium-Retention, Kalium-Ausscheidung und Wasserstoff-Ionen-Verlust über die Niere. Die Hyperglykämie entsteht durch die diabetogene Wirkung von Cortisol. Die Hypernatriämie ist typisch.',
+          compensation: 'Teilweise respiratorische Kompensation. Die Muskelschwäche ist multifaktoriell: Hypokaliämie, Myopathie durch Cortisol-Überschuss, und die katabole Wirkung von Cortisol auf die Muskulatur.',
+          nursing: 'Behandlung der Grunderkrankung durch Endokrinologie. Kalium-Substitution. Blutdruck-Monitoring, da Hypertonie typisch ist. Blutzucker-Kontrollen, oft entwickelt sich ein Steroid-Diabetes. Hautpflege besonders wichtig, da Cortisol die Haut ausdünnt und Wundheilung verschlechtert. Thromboseprophylaxe, Cushing erhöht Thrombose-Risiko.'
+        }
+      },
+      {
+        id: 38, mode: 'advanced', complexity: 'Advanced',
+        context: 'Neugeborenes, zweiter Lebenstag, erbricht gallig, geblähtes Abdomen, Verdacht auf Pylorusstenose.',
+        ph: 7.54, pco2: 44, hco3: 37, be: 11, laktat: 1.5, na: 136, cl: 88, k: 3.2, glukose: 75,
+        primary: 'MET_ALK', comp_basic: 'PARTIAL', comp_advanced: 'RESP_PARTIAL',
+        explanation: {
+          pathophysiology: 'Die hypertrophe Pylorusstenose ist eine Verengung des Magenausgangs beim Säugling. Das Kind erbricht nach jeder Mahlzeit im Schwall, verliert dabei Magensäure. Dies führt zur klassischen hypochlorämischen hypokalämischen metabolischen Alkalose. Die Hypochlorämie ist besonders ausgeprägt. Das galliges Erbrechen deutet auf eine Obstruktion hin.',
+          compensation: 'Teilweise respiratorische Kompensation. Bei Säuglingen ist die Kompensationsfähigkeit noch eingeschränkt.',
+          nursing: 'KINDERCHIRURGISCHER NOTFALL! Magensonde legen, aber nicht absaugen. Volumengabe mit NaCl 0.9 Prozent und Kalium nach Kontrolle. Präoperative Stabilisierung obligat, nie mit schwerer Alkalose operieren. Glukose-haltige Infusionen wegen Hypoglykämie-Risiko. Eltern-Aufklärung und Begleitung. Nach Korrektur der Elektrolyte: Pyloromyotomie. Prognose nach OP exzellent.'
+        }
+      },
+      {
+        id: 39, mode: 'advanced', complexity: 'Advanced',
+        context: 'Bulimie-Patientin, gibt zu, mehrfach täglich zu erbrechen und Laxantien zu missbrauchen.',
+        ph: 7.50, pco2: 43, hco3: 33, be: 8, laktat: 1.0, na: 138, cl: 92, k: 2.6, glukose: 85,
+        primary: 'MET_ALK', comp_basic: 'PARTIAL', comp_advanced: 'RESP_PARTIAL',
+        explanation: {
+          pathophysiology: 'Bei Bulimie mit selbstinduziertem Erbrechen entsteht die gleiche metabolische Alkalose wie bei anderen Formen des Erbrechens. Der chronische Verlust von Magensäure und Chlorid führt zur anhaltenden Alkalose. Die Hypokaliämie ist besonders gefährlich und kann zu lebensbedrohlichen Herzrhythmusstörungen führen. Zusätzlicher Laxantien-Missbrauch kann paradoxerweise auch zu Elektrolytverlusten führen.',
+          compensation: 'Teilweise respiratorische Kompensation. Die psychiatrische Grunderkrankung muss behandelt werden, sonst rezidiviert die Störung ständig.',
+          nursing: 'Einfühlsame psychiatrische Betreuung ist essentiell. Elektrolyt-Substitution, besonders Kalium und Magnesium. EKG-Monitoring bei schwerer Hypokaliämie. Zahnärztliche Kontrolle empfehlen, da Magensäure die Zähne schädigt. Ernährungsberatung einbeziehen. Langfristig: psychotherapeutische Behandlung der Essstörung. Cave: Bei schwerer Hypokaliämie unter 2.5 stationäre Aufnahme erwägen.'
+        }
+      },
+      {
+        id: 40, mode: 'advanced', complexity: 'Advanced',
+        context: 'Patient mit chronischer Niereninsuffizienz, bekommt seit Wochen hochdosiert Natriumbikarbonat oral.',
+        ph: 7.49, pco2: 44, hco3: 33, be: 8, laktat: 1.1, na: 142, cl: 98, k: 4.2, glukose: 105,
+        primary: 'MET_ALK', comp_basic: 'PARTIAL', comp_advanced: 'RESP_PARTIAL',
+        explanation: {
+          pathophysiology: 'Bei chronischer Niereninsuffizienz wird oft Bikarbonat gegeben, um die chronische metabolische Azidose zu behandeln. Wenn die Dosis zu hoch ist oder die Nierenfunktion sich unerwartet verbessert, kann eine iatrogene metabolische Alkalose entstehen. Dies ist ein klassisches Beispiel für eine Übertherapie.',
+          compensation: 'Teilweise respiratorische Kompensation durch Hypoventilation. Bei Patienten mit eingeschränkter Lungenfunktion kann diese Kompensation problematisch sein.',
+          nursing: 'Bikarbonat-Dosis reduzieren oder pausieren. Nierenfunktion kontrollieren, möglicherweise hat sich die GFR verbessert. Elektrolyte überwachen. Bei dialysepflichtigen Patienten: Dialysat-Bikarbonat-Konzentration anpassen. Diese Form der Alkalose ist gut therapierbar durch Dosisanpassung. Langfristig: Ziel-Bikarbonat bei CKD ist 22 bis 24 mmol pro Liter, nicht höher.'
+        }
+      },
+      {
+        id: 41, mode: 'basic', complexity: 'Basis',
+        context: 'Gesunder junger Patient zur Referenzmessung vor elektiver Operation, keine Vorerkrankungen.',
+        ph: 7.40, pco2: 40, hco3: 24, be: 0, laktat: 1.0, na: 140, cl: 104, k: 4.0, glukose: 95,
+        primary: 'NORMAL', comp_basic: 'NONE', comp_advanced: 'NONE',
+        explanation: {
+          pathophysiology: 'Dies ist eine normale BGA ohne pathologische Veränderungen. Alle Parameter liegen im Referenzbereich. Der Säure-Basen-Haushalt ist perfekt ausgeglichen, die Lunge arbeitet effizient, die Nieren kompensieren adäquat. Dies dient als Referenzwert zum Vergleich mit pathologischen Befunden.',
+          compensation: 'Keine Kompensation notwendig, da keine Störung vorliegt. Der pH-Wert liegt exakt in der Mitte des Normbereichs bei 7.40. Sowohl respiratorische als auch metabolische Parameter sind optimal.',
+          nursing: 'Pflegerelevant: Bei normalen BGA-Werten keine spezifischen Maßnahmen erforderlich. Wichtig ist zu lernen, normale Werte sicher zu erkennen und nicht zu überinterpretieren. Nicht jede kleine Abweichung ist klinisch relevant. Der gesunde Körper reguliert den Säure-Basen-Haushalt eigenständig perfekt.'
+        }
+      },
+      {
+        id: 42, mode: 'advanced', complexity: 'Advanced',
+        context: 'Intensivpatient mit Pneumonie-Sepsis und gleichzeitiger Hypoventilation durch starke Sedierung.',
+        ph: 7.10, pco2: 60, hco3: 18, be: -10, laktat: 4.0, na: 130, cl: 95, k: 5.8, glukose: 160,
+        primary: 'P_MIXED', comp_basic: 'NONE', comp_advanced: 'C_MIXED',
+        explanation: {
+          pathophysiology: 'Dies ist eine lebensbedrohliche kombinierte Azidose mit beiden Komponenten gleichzeitig gestört. Die respiratorische Azidose entsteht durch Hypoventilation bei zu tiefer Sedierung oder Atemwegsverlegung. Die metabolische Azidose kommt von der Sepsis mit Gewebehypoxie und Laktatbildung. Beide Störungen addieren sich und treiben den pH dramatisch in den kritischen Bereich unter 7.1.',
+          compensation: 'Keine Kompensation möglich, da beide Regulationssysteme versagen. Die Lunge kann die metabolische Azidose nicht kompensieren, weil sie selbst das Problem ist. Die Niere ist durch die Sepsis in ihrer Funktion eingeschränkt. Dies ist ein medizinischer Notfall mit hoher Mortalität.',
+          nursing: 'Pflegerelevant: HÖCHSTE NOTFALLSTUFE! Sofortige Eskalation an Intensivteam. Atemweg sichern, Beatmung optimieren oder einleiten. Sedierung reduzieren. Sepsis-Therapie intensivieren mit Antibiotika, Volumengabe, Katecholamine. Bei pH unter 7.1 ist die Herzfunktion massiv beeinträchtigt, Katecholamine wirken schlechter. Engmaschiges Monitoring aller Vitalparameter. Bikarbonat-Pufferung erwägen, aber primär Ursachen beheben!'
+        }
+      },
+      {
+        id: 43, mode: 'advanced', complexity: 'Advanced',
+        context: 'Patient mit Infekt, beginnende Sepsis, Tachypnoe 32 pro Minute, leichte Hypotonie, Laktat steigend.',
+        ph: 7.50, pco2: 28, hco3: 22, be: 0, laktat: 3.5, na: 134, cl: 100, k: 3.4, glukose: 110,
+        primary: 'RESP_ALK', comp_basic: 'NONE', comp_advanced: 'NONE',
+        explanation: {
+          pathophysiology: 'Bei beginnender Sepsis ist die respiratorische Alkalose oft ein Frühwarnzeichen, noch bevor die metabolische Azidose manifest wird. Entzündungsmediatoren stimulieren das Atemzentrum und führen zu Hyperventilation. Das erhöhte Laktat von 3.5 zeigt bereits die beginnende Gewebehypoxie, aber das Bikarbonat ist noch normal. Dies ist das Fenster, in dem schnelles Handeln die Eskalation zur schweren Sepsis verhindern kann.',
+          compensation: 'Noch keine Kompensation, die Störung ist akut. Wichtig: In den nächsten Stunden wird sich wahrscheinlich eine metabolische Azidose entwickeln, wenn die Sepsis fortschreitet. Das Laktat ist der wichtigste Verlaufsparameter.',
+          nursing: 'Pflegerelevant: Sepsis-Frühwarnung ernst nehmen! Sofortige Vitalparameter-Kontrolle, qSOFA-Score erheben. Blutkulturen abnehmen, dann Antibiotika nach Protokoll. Volumengabe starten. Laktat-Kontrollen alle zwei Stunden. Engmaschiges Monitoring von Blutdruck, Herzfrequenz, Atemfrequenz, Temperatur, Bewusstsein. Bei Verschlechterung: Intensivstation. Das Zeitfenster für erfolgreiche Therapie ist klein!'
+        }
+      },
+      {
+        id: 44, mode: 'advanced', complexity: 'Advanced',
+        context: 'Patient mit schwerer Herzinsuffizienz und Bewusstseinstrübung, Lungenödem im Röntgen, zusätzlich Fieber.',
+        ph: 7.05, pco2: 70, hco3: 20, be: -8, laktat: 3.0, na: 142, cl: 102, k: 5.0, glukose: 150,
+        primary: 'P_MIXED', comp_basic: 'NONE', comp_advanced: 'C_MIXED',
+        explanation: {
+          pathophysiology: 'Dies ist eine dramatische Kombination aus kardiogenem Lungenödem mit CO→-Retention und beginnender septischer Komponente. Das Lungenödem behindert den Gasaustausch massiv, CO→ wird nicht mehr abgeatmet. Gleichzeitig führt die kardiale Minderperfusion plus mögliche Infektion zur metabolischen Azidose. Der pH von 7.05 ist kritisch und mit dem Leben kaum vereinbar.',
+          compensation: 'Keine Kompensation, beide Systeme sind dekompensiert. Der Patient steht an der Schwelle zum Multiorganversagen. Die Bewusstseinstrübung ist Folge der schweren Azidose und der zerebralen Minderperfusion.',
+          nursing: 'Pflegerelevant: AKUT LEBENSBEDROHLICH! Reanimationsbereitschaft herstellen. Notfall-Intubation und Beatmung vorbereiten. Diuretika-Hochdosis zur Ödem-Ausschwemmung. Katecholamine zur Kreislaufstabilisierung. Antibiotika bei Infektzeichen. Dieser Patient braucht sofortige intensivmedizinische Maximaltherapie. Familie informieren über kritische Situation. Bei pH unter 7.1 ist die Prognose sehr schlecht, jede Minute zählt.'
+        }
+      },
+      {
+        id: 45, mode: 'advanced', complexity: 'Advanced',
+        context: 'Patient mit neuromuskulärer Erkrankung wie ALS, seit Jahren an invasiver Heimbeatmung, zur Routinekontrolle.',
+        ph: 7.40, pco2: 55, hco3: 33, be: 8, laktat: 1.0, na: 139, cl: 98, k: 4.0, glukose: 105,
+        primary: 'RESP_ACI', comp_basic: 'FULL', comp_advanced: 'MET_FULL',
+        explanation: {
+          pathophysiology: 'Bei Patienten mit chronischer neuromuskulärer Erkrankung und Langzeitbeatmung entwickelt sich oft ein individuelles Ziel-pCO₂, das höher liegt als bei Gesunden. Die Atemmuskulatur ist durch die Grunderkrankung so schwach, dass eine Normalisierung des pCO₂ nicht möglich ist. Der Körper hat sich über Monate an dieses höhere CO→-Level angepasst.',
+          compensation: 'Vollständige metabolische Kompensation über die Nieren. Das erhöhte Bikarbonat gleicht die respiratorische Azidose komplett aus, der pH ist wieder normal. Dies ist der neue Steady State für diesen Patienten. Eine Absenkung des pCO₂ durch aggressivere Beatmung würde zu einer metabolischen Alkalose führen.',
+          nursing: 'Pflegerelevant: Bei chronisch beatmeten Patienten ist das individuelle Ziel-pCO₂ zu akzeptieren. Nicht jedes erhöhte pCO₂ muss normalisiert werden. Wichtig: Kontrolle der Beatmungseinstellungen, Cuff-Druck prüfen, Sekretmanagement. Verlaufsbeobachtung wichtiger als Einzelwerte. Bei stabiler Situation keine Panik, der Patient ist gut kompensiert. Schulung der Familie über normale Werte ihres Angehörigen.'
+        }
+      },
+      {
+        id: 46, mode: 'advanced', complexity: 'Advanced',
+        context: 'Tracheotomierter Patient mit plötzlichem Fieber, starke Sekretproduktion, zunehmend unruhig, SpO→ fällt ab.',
+        ph: 7.20, pco2: 80, hco3: 36, be: 10, laktat: 1.5, na: 138, cl: 95, k: 5.0, glukose: 140,
+        primary: 'RESP_ACI', comp_basic: 'PARTIAL', comp_advanced: 'MET_PARTIAL',
+        explanation: {
+          pathophysiology: 'Bei tracheotomierten Patienten kann ein Sekretstau innerhalb von Minuten zu kritischer Atemwegsverlegung führen. Das zähe Sekret bei Fieber und Infektion verlegt die Trachealkanüle oder die unteren Atemwege. Das CO→ steigt dramatisch an. Dies ist eine akute Verschlechterung bei einem Patienten, der zuvor chronisch kompensiert war. Das hohe pCO₂ von 80 mmHg ist lebensbedrohlich.',
+          compensation: 'Das hohe Bikarbonat zeigt die chronische Vorgeschichte, aber die aktuelle Azidose mit pH 7.20 zeigt die akute Dekompensation. Die bestehende Kompensation reicht nicht mehr aus.',
+          nursing: 'Pflegerelevant: NOTFALL bei Trachealkanüle! Sofortige Intervention erforderlich. Endotracheales Absaugen, eventuell Trachealkanüle wechseln wenn verlegt. Sauerstoff-Gabe erhöhen. Lagerung optimieren. Inhalation mit NaCl zur Sekretolyse. Antibiotika bei Infektzeichen. Bei Verschlechterung: Notarzt rufen. Dies ist ein Klassiker in der außerklinischen Intensivpflege - schnelles Erkennen rettet Leben!'
+        }
+      },
+      {
+        id: 47, mode: 'advanced', complexity: 'Advanced',
+        context: 'Beatmeter Patient mit bekannter Trachealkanüle, nun hypotone Kreislaufsituation, Oligurie, Fieber.',
+        ph: 7.15, pco2: 45, hco3: 16, be: -10, laktat: 7.5, na: 135, cl: 90, k: 5.5, glukose: 300,
+        primary: 'MET_ACI', comp_basic: 'PARTIAL', comp_advanced: 'RESP_PARTIAL',
+        explanation: {
+          pathophysiology: 'Dies ist eine schwere metabolische Azidose mit sehr hohem Laktat von 7.5, was auf septischen Schock hindeutet. Die erhöhte Anionenlücke durch Laktat ist charakteristisch. Die Hyperglykämie entsteht durch Stress und Insulinresistenz bei Sepsis. Die Hyperkaliämie kommt durch die Azidose und beginnende Nierenfunktionsstörung. Der Patient ist vital bedroht.',
+          compensation: 'Teilweise respiratorische Kompensation, aber insuffizient bei so hohem Laktat. Das pCO₂ ist im oberen Normbereich statt niedrig, was darauf hindeutet, dass die Atemreserve erschöpft ist.',
+          nursing: 'Pflegerelevant: SEPTISCHER SCHOCK! Sofortige Eskalation. Sepsis-Bundle: Blutkulturen, Antibiotika innerhalb einer Stunde, aggressive Volumengabe 30 ml pro kg. Noradrenalin bei persistierender Hypotonie. Fokus-Sanierung, wahrscheinlich Pneumonie bei beatmetem Patienten. Laktat-Kontrollen alle 2 Stunden als Verlaufsparameter. Blutzucker-Management. Hyperkaliämie-Monitoring am EKG. Bei Laktat über 4 ist die Mortalität sehr hoch.'
+        }
+      },
+      {
+        id: 48, mode: 'basic', complexity: 'Basis',
+        context: 'Beatmungspatient, seit heute Morgen zunehmend unruhig, Alarm wegen Hyperventilation, SpO→ 100 Prozent.',
+        ph: 7.55, pco2: 30, hco3: 24, be: 0, laktat: 1.0, na: 142, cl: 100, k: 4.2, glukose: 100,
+        primary: 'RESP_ALK', comp_basic: 'NONE', comp_advanced: 'NONE',
+        explanation: {
+          pathophysiology: 'Dies ist eine iatrogene respiratorische Alkalose durch fehlerhafte Beatmungseinstellung. Das Atemzugvolumen ist zu hoch oder die Atemfrequenz zu hoch eingestellt, sodass zu viel CO→ abgeatmet wird. Die Unruhe des Patienten kann durch die Alkalose selbst verursacht sein, aber auch Auslöser für gehäuftes Triggern der Beatmung sein. Eine Überbeatmung ist potenziell gefährlich.',
+          compensation: 'Keine Kompensation bei akuter Störung. Das Bikarbonat ist noch normal, da die Nieren Zeit brauchen um zu reagieren.',
+          nursing: 'Pflegerelevant: Beatmungseinstellungen SOFORT überprüfen und korrigieren. Atemzugvolumen oder Frequenz reduzieren. Ursache der Unruhe abklären: Schmerzen, Angst, volle Blase, Lagerung unbequem. Sedierung nur als letzte Option, erst alle anderen Ursachen ausschließen. Eine chronische Überbeatmung kann später zu Apnoen führen, wenn der Patient an niedrige CO→-Werte gewöhnt ist. Ziel: normales pCO₂ anstreben.'
+        }
+      },
+      {
+        id: 49, mode: 'advanced', complexity: 'Advanced',
+        context: 'Langzeitbeatmeter Patient mit Herzinsuffizienz, erhält hochdosierte Schleifendiuretika seit Wochen.',
+        ph: 7.47, pco2: 35, hco3: 28, be: 4, laktat: 1.0, na: 145, cl: 100, k: 3.0, glukose: 95,
+        primary: 'MET_ALK', comp_basic: 'PARTIAL', comp_advanced: 'RESP_PARTIAL',
+        explanation: {
+          pathophysiology: 'Schleifendiuretika wie Furosemid führen bei Langzeitgabe zu einem massiven Verlust von Chlorid und Kalium über die Niere. Dies ist eine kontraktions-alkalose durch Volumenmangel. Der Chlorid-Verlust ist der Hauptmechanismus. Die chronische Diuretika-Therapie bei beatmeten Patienten mit Herzinsuffizienz ist eine häufige Ursache für metabolische Alkalose in der Langzeitpflege.',
+          compensation: 'Teilweise respiratorische Kompensation durch leichte Hypoventilation. Bei beatmeten Patienten ist diese Kompensation durch die Beatmungseinstellung limitiert.',
+          nursing: 'Pflegerelevant: Diuretika-Dosis mit Arzt besprechen, eventuell reduzieren oder Kalium-sparende Diuretika ergänzen. Aggressive Kalium-Substitution notwendig, Ziel über 4.0 mmol pro Liter. Chlorid-Gabe erwägen als NaCl-Infusion. Magnesium kontrollieren und substituieren. Bei beatmeten Patienten: Beatmungseinstellung eventuell anpassen. Flüssigkeitsbilanz führen. EKG-Monitoring bei Hypokaliämie obligat.'
+        }
+      },
+      {
+        id: 50, mode: 'advanced', complexity: 'Advanced',
+        context: 'COPD-Patient mit Cor pulmonale, periphere Ödeme, Halsvenen gestaut, zunehmende Belastungsdyspnoe.',
+        ph: 7.32, pco2: 58, hco3: 30, be: 4, laktat: 1.6, na: 132, cl: 98, k: 3.2, glukose: 118,
+        primary: 'RESP_ACI', comp_basic: 'PARTIAL', comp_advanced: 'MET_PARTIAL',
+        explanation: {
+          pathophysiology: 'Bei langjähriger COPD führt chronische Hypoxie zur pulmonalen Hypertonie und Rechtsherzbelastung, dem sogenannten Cor pulmonale. Die Herzinsuffizienz verschlechtert die Lungenfunktion zusätzlich. Die Hyponatriämie und Hypokaliämie sind typisch bei Herzinsuffizienz mit Diuretika-Therapie. Dies ist ein Teufelskreis aus Lungen- und Herzerkrankung.',
+          compensation: 'Metabolische Teilkompensation. Auffällig: Hyponatriämie von 132 und Hypokaliämie von 3.2, typisch bei Herzinsuffizienz mit Diuretika. Die Elektrolytstörungen können Arrhythmien begünstigen.',
+          nursing: 'Pflegerelevant: Sorgfältige Bilanzierung, Cave Überwässerung. Diuretika nach Plan, aber Elektrolytsubstitution nicht vergessen, besonders Kalium. Oberkörperhochlagerung. Bei Verschlechterung: NIV plus Herzinsuffizienz-Therapie optimieren. Gewichtskontrolle täglich. Beinödeme dokumentieren. Sauerstoff-Gabe vorsichtig dosieren, Ziel SpO→ 88 bis 92 Prozent bei COPD. EKG-Monitoring bei Elektrolytstörungen.'
+        }
+      },
+      {
+        id: 51, mode: 'basic', complexity: 'Basis',
+        context: 'Heimbeatmeter Patient, Angehörige berichtet über zunehmende Tagesmüdigkeit und morgendliche Kopfschmerzen.',
+        ph: 7.34, pco2: 56, hco3: 30, be: 4, laktat: 1.1, na: 140, cl: 103, k: 4.0, glukose: 105,
+        primary: 'RESP_ACI', comp_basic: 'PARTIAL', comp_advanced: 'MET_PARTIAL',
+        explanation: {
+          pathophysiology: 'Bei heimbeatmeten Patienten kann eine schleichende Unterventilation entstehen, wenn die Beatmungseinstellungen nicht mehr optimal sind. Mögliche Ursachen sind Gewichtszunahme, Krankheitsprogression, Leckagen am Interface oder technische Probleme der Beatmungsmaschine. Die morgendlichen Kopfschmerzen sind ein typisches Zeichen für nächtliche CO→-Retention, die sogenannte CO→-Narkose-Symptomatik.',
+          compensation: 'Teilweise metabolische Kompensation durch die Nieren, erkennbar am erhöhten Bikarbonat. Dies zeigt, dass die Unterventilation schon seit Tagen bis Wochen besteht, nicht erst seit heute. Der Körper versucht zu kompensieren, aber es reicht nicht mehr aus.',
+          nursing: 'Pflegerelevant: Beatmungsgerät überprüfen auf Funktion und Einstellungen. Masken-Sitz kontrollieren, Leckagen ausschließen. Befeuchtungssystem prüfen. Atemzugvolumen oder Beatmungsdruck eventuell erhöhen nach Rücksprache mit Arzt oder Beatmungstherapeut. Download der Gerätedaten zur Auswertung. Bei Verschlechterung: Pneumologen oder Beatmungszentrum kontaktieren. Schulung der Familie über Warnzeichen.'
+        }
+      },
+      {
+        id: 52, mode: 'basic', complexity: 'Basis',
+        context: 'Patient mit Tracheostoma in häuslicher Pflege, seit gestern vermehrtes gelblich-grünes Trachealsekret, Fieber 38.2°C.',
+        ph: 7.29, pco2: 54, hco3: 26, be: 0, laktat: 1.8, na: 138, cl: 104, k: 4.3, glukose: 135,
+        primary: 'RESP_ACI', comp_basic: 'NONE', comp_advanced: 'NONE',
+        explanation: {
+          pathophysiology: 'Bei tracheotomierten Patienten ist das Risiko für Atemwegsinfektionen erhöht, da die natürlichen Abwehrmechanismen der oberen Atemwege umgangen werden. Das purulente Sekret und Fieber deuten auf eine bakterielle Tracheobronchitis oder beginnende Pneumonie hin. Die Infektion führt zu Bronchospasmus, Sekretverlegung und damit zu Hypoventilation mit CO→-Retention.',
+          compensation: 'Keine Kompensation bei akutem Infektgeschehen. Das leicht erhöhte Laktat deutet auf eine beginnende systemische Entzündungsreaktion hin.',
+          nursing: 'Pflegerelevant: Sekretabnahme für Mikrobiologie vor Antibiotika-Gabe. Intensivierung der Inhalationstherapie mit NaCl und eventuell Bronchodilatatoren. Endotracheales Absaugen nach Bedarf, aber nicht zu häufig um Schleimhautreizung zu vermeiden. Antibiotika nach ärztlicher Anordnung. Fiebersenkung. Flüssigkeitszufuhr erhöhen zur Sekretverflüssigung. Oberkörperhochlagerung. Bei Verschlechterung mit steigendem pCO₂ oder Bewusstseinstrübung: Klinikeinweisung erwägen.'
+        }
+      },
+      {
+        id: 53, mode: 'basic', complexity: 'Basis',
+        context: 'Heimbeatmeter ALS-Patient, Angehörige hat aus Versehen das Atemzugvolumen erhöht, Patient klagt über Schwindel.',
+        ph: 7.49, pco2: 32, hco3: 24, be: 0, laktat: 0.9, na: 141, cl: 105, k: 3.9, glukose: 98,
+        primary: 'RESP_ALK', comp_basic: 'NONE', comp_advanced: 'NONE',
+        explanation: {
+          pathophysiology: 'Bei versehentlich erhöhtem Atemzugvolumen wird der Patient überbeatmet. Es wird mehr CO→ abgeatmet als produziert, was zur akuten respiratorischen Alkalose führt. Der Schwindel entsteht durch zerebrale Vasokonstriktion bei niedrigem CO→, was die Hirndurchblutung reduziert. Dies ist ein häufiger iatrogener Fehler in der häuslichen Beatmung.',
+          compensation: 'Keine Kompensation bei akutem Ereignis. Das Bikarbonat ist noch im Normbereich.',
+          nursing: 'Pflegerelevant: Beatmungseinstellungen SOFORT auf die Ausgangswerte zurücksetzen. Dokumentation der korrekten Einstellungen für die Familie sichtbar anbringen. Einweisung der Angehörigen wiederholen, wie wichtig korrekte Einstellungen sind. Kindersicherung am Beatmungsgerät aktivieren falls möglich. Dieser Fall zeigt, wie wichtig regelmäßige Schulungen der pflegenden Angehörigen sind. Bei persistierenden Symptomen nach Korrektur: telefonische Rücksprache mit Beatmungszentrum.'
+        }
+      },
+      {
+        id: 54, mode: 'advanced', complexity: 'Advanced',
+        context: 'Langzeitbeatmeter Patient, seit Wochen kaum Flüssigkeitsaufnahme wegen Schluckstörung, zunehmend verwirrt.',
+        ph: 7.48, pco2: 42, hco3: 31, be: 6, laktat: 1.2, na: 152, cl: 110, k: 3.3, glukose: 125,
+        primary: 'MET_ALK', comp_basic: 'PARTIAL', comp_advanced: 'RESP_PARTIAL',
+        explanation: {
+          pathophysiology: 'Bei unzureichender Flüssigkeitszufuhr entsteht eine Dehydratation mit Hypernatriämie von 152. Die Kontraktionsalkalose durch Volumenmangel führt zur metabolischen Alkalose. Die Nieren scheiden bei Volumenmangel weniger Bikarbonat aus um Natrium zu sparen, was die Alkalose verstärkt. Die Hyperchlorämie und Hypokaliämie sind typisch. Die Verwirrtheit ist Folge der Hypernatriämie und Dehydratation, besonders gefährlich bei älteren Patienten.',
+          compensation: 'Teilweise respiratorische Kompensation durch leichte Hypoventilation. Bei beatmeten Patienten ist diese Kompensation limitiert.',
+          nursing: 'Pflegerelevant: Flüssigkeitsbilanz führen und Flüssigkeitszufuhr drastisch erhöhen, ideal über PEG-Sonde falls vorhanden, sonst vorsichtige orale Flüssigkeitsgabe oder intravenöse Rehydratation erwägen. Vorsicht bei zu schneller Korrektur der Hypernatriämie, maximal 10 mmol pro Liter pro Tag senken um osmotisches Demyelinisierungssyndrom zu vermeiden. Elektrolyt-Substitution besonders Kalium. Hautpflege intensivieren bei Dehydratation. Schulung der Familie über ausreichende Flüssigkeitszufuhr, eventuell PEG-Anlage besprechen bei persistierender Dysphagie.'
+        }
+      },
+      {
+        id: 55, mode: 'advanced', complexity: 'Advanced',
+        context: 'Heimbeatmeter Patient mit Aspirationspneumonie, antibiotisch anbehandelt, jetzt zunehmend dyspnoisch trotz Sauerstoff.',
+        ph: 7.32, pco2: 48, hco3: 24, be: -1, laktat: 2.8, na: 136, cl: 102, k: 4.5, glukose: 165,
+        primary: 'RESP_ACI', comp_basic: 'NONE', comp_advanced: 'NONE',
+        explanation: {
+          pathophysiology: 'Die Aspirationspneumonie bei beatmeten Patienten ist eine gefürchtete Komplikation. Aspirierter Mageninhalt schädigt die Lunge chemisch und bakteriell. Trotz Antibiotika-Therapie verschlechtert sich die Lungenfunktion, die Inflammation reduziert die Compliance. Das erhöhte Laktat von 2.8 deutet auf eine zunehmende Hypoxie und beginnende Sepsis hin. Die Hyperglykämie ist Stressreaktion.',
+          compensation: 'Keine metabolische Kompensation bei akutem Geschehen. Das pCO₂ steigt trotz vermehrter Atemanstrengung, was ein schlechtes Zeichen ist und auf respiratorische Erschöpfung hindeutet.',
+          nursing: 'Pflegerelevant: DRINGEND ärztliche Evaluation, eventuell Klinikeinweisung notwendig. Röntgen-Thorax zum Ausschluss von Komplikationen wie Pleuraerguss oder ARDS. Antibiotika-Therapie evaluieren, eventuell Eskalation. Beatmungsunterstützung intensivieren, höherer Beatmungsdruck oder Frequenz. Aspirationsprophylaxe überprüfen: Oberkörperhochlagerung mindestens 30 Grad, Cuff-Druck kontrollieren, Nahrungszufuhr über PEG optimieren, Magensonde auf richtige Lage prüfen. Bei weiter steigendem Laktat: septischer Schock, Intensivstation erforderlich.'
+        }
+      },
+      {
+        id: 56, mode: 'basic', complexity: 'Basis',
+        context: 'Patient mit neuer Heimbeatmung, erste Woche zu Hause, klagt über Bauchschmerzen und Völlegefühl nach Mahlzeiten.',
+        ph: 7.51, pco2: 46, hco3: 36, be: 10, laktat: 0.9, na: 139, cl: 95, k: 3.2, glukose: 100,
+        primary: 'MET_ALK', comp_basic: 'PARTIAL', comp_advanced: 'RESP_PARTIAL',
+        explanation: {
+          pathophysiology: 'Bei Beatmungspatienten kann es zu Aerophagie kommen, dem Verschlucken von Luft, besonders bei nicht-invasiver Beatmung mit Maske. Die verschluckte Luft führt zu Magenüberblähung und reflexartig zu Erbrechen oder Aufstoßen. Wenn saurer Mageninhalt verloren geht, entsteht eine metabolische Alkalose. Die Hypokaliämie und Hypochlorämie sind typisch. Die Bauchschmerzen entstehen durch die Überdehnung des Magens.',
+          compensation: 'Teilweise respiratorische Kompensation durch Hypoventilation, erkennbar am etwas erhöhten pCO₂.',
+          nursing: 'Pflegerelevant: Beatmungsmaske überprüfen auf korrekten Sitz und Druck, eventuell auf andere Maskengröße oder Maskentyp wechseln. Kleinere, häufigere Mahlzeiten statt großer Portionen. Langsam essen lassen, gut kauen. Oberkörperhochlagerung nach Mahlzeiten. Medikamente zur Reduktion der Magensäureproduktion erwägen. Kalium-Substitution. Bei persistierenden Beschwerden: PEG-Anlage diskutieren um orale Nahrungsaufnahme zu vermeiden. Dies ist ein häufiges Problem in der Anpassungsphase an die Heimbeatmung.'
+        }
+      },
+      {
+        id: 57, mode: 'advanced', complexity: 'Advanced',
+        context: 'Beatmungspatient unter Langzeit-Cortisontherapie wegen COPD, seit drei Tagen Halsschmerzen, jetzt Luftnot und Fieber.',
+        ph: 7.24, pco2: 62, hco3: 26, be: 0, laktat: 3.2, na: 144, cl: 108, k: 5.1, glukose: 285,
+        primary: 'RESP_ACI', comp_basic: 'NONE', comp_advanced: 'NONE',
+        explanation: {
+          pathophysiology: 'Patienten unter Langzeit-Cortison-Therapie sind immunsupprimiert und haben ein erhöhtes Infektionsrisiko. Die Halsschmerzen waren wahrscheinlich erstes Zeichen einer Infektion, die sich jetzt zur schweren Tracheobronchitis oder Pneumonie entwickelt hat. Die Hyperglykämie entsteht durch die Cortison-Therapie plus Stress der Infektion. Das erhöhte Laktat deutet auf beginnende Sepsis hin. Die CO→-Retention zeigt die schwere Atemwegsverlegung.',
+          compensation: 'Keine Kompensation bei akuter Infektion. Der Patient ist kritisch und braucht sofortige Intervention.',
+          nursing: 'Pflegerelevant: NOTFALL! Sofortige Klinikeinweisung erforderlich. Blutkulturen und Sputum für Mikrobiologie abnehmen. Breitspektrum-Antibiotika nach Anordnung. Bei immunsupprimierten Patienten auch an opportunistische Erreger denken wie Pilze oder Pneumocystis. Blutzucker-Management, eventuell Insulin-Therapie. Intensivierung der Beatmungsunterstützung. Bei Patienten unter Langzeit-Cortison: Bei jedem Infektzeichen frühzeitig reagieren, da Infektionen schnell lebensbedrohlich werden können. Cave: Cortison nicht abrupt absetzen, Stress-Dosierung eventuell erhöhen.'
+        }
+      },
+      {
+        id: 58, mode: 'basic', complexity: 'Basis',
+        context: 'Heimbeatmungspatient, Stromausfall in der Nacht für zwei Stunden, Notfallbeatmung mit Ambubeutel durch Angehörige.',
+        ph: 7.33, pco2: 52, hco3: 27, be: 1, laktat: 1.5, na: 139, cl: 103, k: 4.2, glukose: 130,
+        primary: 'RESP_ACI', comp_basic: 'PARTIAL', comp_advanced: 'MET_PARTIAL',
+        explanation: {
+          pathophysiology: 'Bei Stromausfall und manueller Notfallbeatmung mit Ambubeutel ist es sehr schwierig, eine adäquate Ventilation aufrecht zu erhalten. Meist wird zu wenig Volumen oder zu selten beatmet, was zur CO→-Retention führt. Die manuelle Beatmung über zwei Stunden ist für Angehörige extrem anstrengend. Das leicht erhöhte Laktat und die Hyperglykämie zeigen die Stress-Situation für den Patienten.',
+          compensation: 'Beginnende metabolische Kompensation, das Bikarbonat ist leicht erhöht. Dies zeigt, dass die Unterventilation über mehrere Stunden bestand.',
+          nursing: 'Pflegerelevant: Nach Wiederherstellung der Stromversorgung und Rückkehr zur maschinellen Beatmung den Patienten engmaschig überwachen. BGA-Kontrolle war hier richtig um das Ausmaß der Hyperkapnie zu erfassen. Wichtige Lernpunkte: Notfallplan mit der Familie durchgehen, Notstromaggregat oder batteriebetriebenes Beatmungsgerät als Backup organisieren. Schulung der Angehörigen in manueller Beatmung ist essentiell. Ambubeutel muss immer griffbereit sein. Kontakt zum Energieversorger herstellen um bei Patienten mit lebenserhaltenden Geräten vorrangige Wiederherstellung zu gewährleisten.'
+        }
+      },
+      {
+        id: 59, mode: 'advanced', complexity: 'Advanced',
+        context: 'Langzeitbeatmeter Patient mit Dekubitus Grad 3 am Steißein, seit Tagen zunehmende Wundverschlechterung, Geruch.',
+        ph: 7.29, pco2: 38, hco3: 18, be: -7, laktat: 4.2, na: 135, cl: 98, k: 5.2, glukose: 175,
+        primary: 'MET_ACI', comp_basic: 'PARTIAL', comp_advanced: 'RESP_PARTIAL',
+        explanation: {
+          pathophysiology: 'Der infizierte Dekubitus ist Ausgangspunkt einer Sepsis. Bakterien aus der nekrotischen Wunde gelangen in die Blutbahn und führen zur systemischen Entzündungsreaktion. Das hohe Laktat von 4.2 zeigt die Gewebehypoxie und septische Komponente. Die metabolische Azidose entsteht durch die Laktatakkumulation. Der üble Geruch deutet auf anaerobe Bakterien hin, die besonders aggressiv sind.',
+          compensation: 'Teilweise respiratorische Kompensation, aber insuffizient bei so hohem Laktat. Die Hyperkaliämie ist Folge der Azidose und kann zu Herzrhythmusstörungen führen.',
+          nursing: 'Pflegerelevant: SEPTISCHER NOTFALL ausgehend von Dekubitus! Sofortige Klinikeinweisung für chirurgisches Debridement notwendig. Blutkulturen und Wundabstrich vor Antibiotika. Breitspektrum-Antibiotika gegen Anaerobier. Volumengabe, eventuell Katecholamine. Dies zeigt: Dekubitusprophylaxe und frühzeitige Wundversorgung sind überlebenswichtig bei immobilen Beatmungspatienten. Lagerung alle zwei Stunden, Wechseldruckmatratze, Hautpflege, Ernährungsstatus optimieren. EKG-Monitoring wegen Hyperkaliämie. Dieser Fall hätte durch konsequente Prophylaxe verhindert werden können.'
+        }
+      },
+      {
+        id: 60, mode: 'advanced', complexity: 'Advanced',
+        context: 'Heimbeatmeter Patient, Angehörige vergessen seit einer Woche die abendliche Medikamentengabe inkl. Protonenpumpenhemmer.',
+        ph: 7.33, pco2: 40, hco3: 21, be: -3, laktat: 1.1, na: 138, cl: 106, k: 4.8, glukose: 102,
+        primary: 'MET_ACI', comp_basic: 'NONE', comp_advanced: 'NONE',
+        explanation: {
+          pathophysiology: 'Ohne Protonenpumpenhemmer bei beatmeten Patienten steigt das Risiko für Stressulcera im Magen dramatisch. Die vermehrte Magensäureproduktion kann zu okkulten Blutungen führen. Bei Blutungen im oberen Gastrointestinaltrakt wird Hämoglobin zu Harnstoff abgebaut, was zur metabolischen Azidose führt. Die Hyperchlorämie deutet auf eine hyperchlorämische Azidose hin. Die Azidose ist noch mild, aber das Problem kann sich schnell verschlechtern.',
+          compensation: 'Keine Kompensation erkennbar bei dieser milden Azidose. Wichtig ist hier die frühzeitige Erkennung bevor es zu massiven Blutungen kommt.',
+          nursing: 'Pflegerelevant: Medikamentenplan überprüfen und mit Angehörigen besprechen. Protonenpumpenhemmer SOFORT wieder ansetzen. Kontrolle auf Zeichen gastrointestinaler Blutung: Teerstuhl, Hämatemesis, Anämie-Zeichen wie Blässe oder Tachykardie. Stuhl auf okkultes Blut testen. Bei beatmeten Patienten ist die Stress-Ulkus-Prophylaxe essentiell und darf niemals vergessen werden. Medikamentendispenser für die Familie organisieren zur Vermeidung solcher Fehler. Regelmäßige Hämoglobin-Kontrollen bei Risikopatienten. Dies zeigt wie wichtig strukturierte Medikamentengabe und Schulung der Angehörigen sind.'
+        }
+      }
+    ];
+
+    let currentIndex = 0;
+    let currentMode = 'basic';
+
+    const inputs = {
+      ph: document.getElementById('ph'),
+      pco2: document.getElementById('pco2'),
+      hco3: document.getElementById('hco3'),
+      be: document.getElementById('be'),
+      laktat: document.getElementById('laktat'),
+      na: document.getElementById('na'),
+      cl: document.getElementById('cl'),
+      k: document.getElementById('k'),
+      glukose: document.getElementById('glukose')
+    };
+
+    const advancedContainer = document.getElementById('advanced-values-container');
+    const primaryFieldset = document.getElementById('primary-fieldset');
+    const compBasicFieldset = document.getElementById('comp-basic-fieldset');
+    const compAdvancedFieldset = document.getElementById('comp-advanced-fieldset');
+    const pMixedLi = document.getElementById('p-mixed-li');
+    const modeChip = document.getElementById('mode-chip');
+    const explainWrap = document.getElementById('explain-wrap');
+    const clinicalExplanationContainer = document.getElementById('clinical-explanation-container');
+    const clinicalExplanationText = document.getElementById('clinical-explanation-text');
+
+    function setAmpelColor(key, value) {
+      const item = document.getElementById('item-' + key);
+      if (!item) return;
+      item.classList.remove('norm-green', 'norm-red', 'norm-blue');
+      const norm = NORMBEREICHE[key];
+      if (!norm) return;
+      if (value >= norm.min && value <= norm.max) {
+        item.classList.add('norm-green');
+      } else if (key === 'ph' || key === 'pco2' || key === 'be' || key === 'laktat') {
+        item.classList.add('norm-red');
+      } else {
+        item.classList.add('norm-blue');
+      }
+    }
+
+    function getRandomCase() {
+      // SPRINT 3: Nicht mehr komplett zufällig, sondern adaptiv
+      const optimalCase = LearningManager.getOptimalNextCase(currentMode);
+      
+      // Zeige optional die Begründung (nur bei bestimmten Gründen)
+      if (optimalCase.message && (optimalCase.reason === 'repetition' || optimalCase.reason === 'motivation' || optimalCase.reason === 'weakness')) {
+        showCaseSelectionHint(optimalCase.message);
+      }
+      
+      // Finde den Index des Falls in CASES Array
+      const caseIndex = CASES.findIndex(c => c.id === optimalCase.caseId);
+      return caseIndex !== -1 ? caseIndex : Math.floor(Math.random() * CASES.length);
+    }
+    
+    // Zeigt einen dezenten Hinweis warum dieser Fall gewählt wurde
+    function showCaseSelectionHint(message) {
+      const contextDiv = document.getElementById('clinical-context');
+      
+      // Füge den Hinweis temporär über dem klinischen Kontext ein
+      const hint = document.createElement('div');
+      hint.style.cssText = 'background: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px; border-radius: 6px; margin-bottom: 12px; font-size: 0.875rem;';
+      hint.innerHTML = `<strong>💡 Fallauswahl:</strong> ${message}`;
+      
+      contextDiv.parentNode.insertBefore(hint, contextDiv);
+      
+      // Entferne Hinweis nach 8 Sekunden
+      setTimeout(() => {
+        hint.style.transition = 'opacity 0.5s';
+        hint.style.opacity = '0';
+        setTimeout(() => hint.remove(), 500);
+      }, 8000);
+    }
+
+    function renderCase(index) {
+      if (index === -1) index = getRandomCase();
+      const c = CASES[index];
+      if (!c) return;
+      currentIndex = index;
+      
+      for (const key in inputs) {
+        if (inputs[key] && c[key] != null) {
+          inputs[key].value = c[key].toFixed(key === 'ph' ? 2 : 1);
+          setAmpelColor(key, c[key]);
+        }
+      }
+
+      document.getElementById('case-id').textContent = c.id;
+      document.getElementById('case-complexity').textContent = c.complexity;
+      document.getElementById('case-complexity').className = 'text-xs px-2 py-1 rounded-full ' + 
+        (c.complexity === 'Basis' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800');
+      document.getElementById('clinical-context').textContent = c.context;
+
+      primaryFieldset.querySelectorAll('input').forEach(r => r.checked = false);
+      compBasicFieldset.querySelectorAll('input').forEach(r => r.checked = false);
+      compAdvancedFieldset.querySelectorAll('input').forEach(r => r.checked = false);
+      compBasicFieldset.disabled = true;
+      compAdvancedFieldset.disabled = true;
+
+      explainWrap.open = false;
+      document.getElementById('status-dot').style.backgroundColor = '#9ca3af';
+      document.getElementById('result-text').textContent = 'Bitte Werte auswerten';
+      document.getElementById('explanation').textContent = 'Bitte wähle primäre Störung und Kompensation.';
+      clinicalExplanationContainer.classList.add('hidden');
+    }
+
+    function handleModeChange() {
+      const newMode = document.querySelector('input[name="mode"]:checked').value;
+      currentMode = newMode;
+      
+      if (currentMode === 'basic') {
+        modeChip.textContent = 'BASIS MODUS';
+        advancedContainer.classList.add('hidden');
+        compBasicFieldset.style.display = 'block';
+        compAdvancedFieldset.style.display = 'none';
+        pMixedLi.classList.add('hidden');
+      } else if (currentMode === 'advanced') {
+        modeChip.textContent = 'ADVANCED MODUS';
+        advancedContainer.classList.remove('hidden');
+        compBasicFieldset.style.display = 'none';
+        compAdvancedFieldset.style.display = 'block';
+        pMixedLi.classList.remove('hidden');
+      } else {
+        modeChip.textContent = 'MIXED MODUS';
+        advancedContainer.classList.remove('hidden');
+        compBasicFieldset.style.display = 'none';
+        compAdvancedFieldset.style.display = 'block';
+        pMixedLi.classList.remove('hidden');
+      }
+    }
+
+    function handlePrimarySelection() {
+      const primary = document.querySelector('input[name="primary"]:checked');
+      if (!primary) {
+        compBasicFieldset.disabled = true;
+        compAdvancedFieldset.disabled = true;
+        return;
+      }
+      if (primary.value === 'NORMAL') {
+        compBasicFieldset.disabled = true;
+        compAdvancedFieldset.disabled = true;
+        document.getElementById('c-none').checked = true;
+        document.getElementById('ca-none').checked = true;
+      } else {
+        if (currentMode === 'basic') {
+          compBasicFieldset.disabled = false;
+        } else {
+          compAdvancedFieldset.disabled = false;
+        }
+      }
+    }
+
+    function getLabel(key) {
+      const labels = {
+        NORMAL: 'Normal', RESP_ACI: 'Respiratorische Azidose', RESP_ALK: 'Respiratorische Alkalose',
+        MET_ACI: 'Metabolische Azidose', MET_ALK: 'Metabolische Alkalose', P_MIXED: 'Gemischte Störung',
+        NONE: 'Keine Kompensation', PARTIAL: 'Teilweise Kompensation', FULL: 'Vollständige Kompensation',
+        RESP_PARTIAL: 'Respiratorische Teil-Kompensation', MET_PARTIAL: 'Metabolische Teil-Kompensation',
+        RESP_FULL: 'Respiratorische Voll-Kompensation', MET_FULL: 'Metabolische Voll-Kompensation',
+        C_MIXED: 'Gemischte Störung'
+      };
+      return labels[key] || key;
+    }
+
+    document.querySelectorAll('input[name="mode"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        handleModeChange();
+        renderCase(-1);
+      });
+    });
+
+    primaryFieldset.addEventListener('change', handlePrimarySelection);
+
+    document.getElementById('evalbutton').addEventListener('click', () => {
+      const c = CASES[currentIndex];
+      const primaryEl = document.querySelector('input[name="primary"]:checked');
+      const compKey = currentMode === 'basic' ? 'comp_basic' : 'comp_advanced';
+      const compEl = document.querySelector('input[name="' + compKey + '"]:checked');
+      
+      if (!primaryEl || !compEl) {
+        alert('Bitte wähle beide Optionen aus!');
+        return;
+      }
+
+      // Speichere den Versuch im LearningManager
+      const isCorrect = LearningManager.saveAttempt(
+        c.id,
+        primaryEl.value,
+        compEl.value,
+        c.primary,
+        c[compKey],
+        currentMode
+      );
+      
+      // Prüfe ob ein neuer Meilenstein erreicht wurde
+      const newMilestone = LearningManager.checkForNewMilestone();
+      if (newMilestone) {
+        showMilestoneAchievement(newMilestone);
+      }
+      
+      // Aktualisiere Progress Badge
+      updateProgressBadge();
+      
+      // Aktualisiere UI
+      document.getElementById('status-dot').style.backgroundColor = isCorrect ? '#16a34a' : '#ef4444';
+      document.getElementById('result-text').textContent = isCorrect ? 'Korrekt →' : 'Nicht korrekt ✗';
+      
+      // Zeige Erklärung
+      let explanationHTML = '<p><strong>Richtige Antwort:</strong> ' + getLabel(c.primary) + ', ' + getLabel(c[compKey]) + '</p>';
+      
+      // Füge personalisiertes Feedback hinzu (Sprint 1 Basis-Version)
+      const stats = LearningManager.getBasicStats();
+      if (!isCorrect && stats.totalAttempts > 5) {
+        explanationHTML += '<p style="margin-top: 12px; padding: 8px; background-color: #FEF3C7; border-radius: 6px; font-size: 0.875rem;">';
+        explanationHTML += '💡 <strong>Tipp:</strong> Du hast jetzt ' + stats.totalAttempts + ' Fälle bearbeitet mit ' + stats.successRate + '% Erfolgsquote. ';
+        if (stats.successRate < 60) {
+          explanationHTML += 'Lass dir Zeit bei der Analyse und nutze den Normwerte-Spickzettel!';
+        } else {
+          explanationHTML += 'Du machst gute Fortschritte, bleib dran!';
+        }
+        explanationHTML += '</p>';
+      }
+      
+      document.getElementById('explanation').innerHTML = explanationHTML;
+      explainWrap.open = true;
+
+      if (c.explanation) {
+        clinicalExplanationText.innerHTML = 
+          '<p class="mb-2"><strong>Pathophysiologie:</strong><br>' + c.explanation.pathophysiology + '</p>' +
+          '<p class="mb-2"><strong>Kompensation:</strong><br>' + c.explanation.compensation + '</p>' +
+          '<p><strong>Pflegerisch:</strong><br>' + c.explanation.nursing + '</p>';
+        clinicalExplanationContainer.classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('nextcasebutton').addEventListener('click', () => {
+      renderCase(-1);
+    });
+
+    document.getElementById('resetbutton').addEventListener('click', () => {
+      renderCase(currentIndex);
+    });
+
+    window.onload = () => {
+      // Prüfe ob Validierungsanfrage in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const validateNumber = urlParams.get('validate');
+      
+      if (validateNumber) {
+        showValidationPage(validateNumber);
+        return; // Zeige nur Validierungsseite, nicht das normale Tool
+      }
+      
+      // Normales Tool-Loading
+      // Initialisiere Learning Manager
+      LearningManager.init();
+      
+      // Zeige Willkommensnachricht mit Statistiken
+      showWelcomeMessage();
+      
+      handleModeChange();
+      renderCase(-1);
+      
+      // Event-Listener für Dashboard
+      document.getElementById('stats-toggle-btn').addEventListener('click', toggleDashboard);
+      document.getElementById('stats-close-btn').addEventListener('click', toggleDashboard);
+    };
+    
+    // Zeigt die Validierungsseite für ein Zertifikat
+    function showValidationPage(certNumber) {
+      document.body.innerHTML = `
+        <style>
+          body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+          }
+          .validation-card {
+            background: white;
+            border-radius: 16px;
+            padding: 48px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3);
+          }
+          .validation-card h1 {
+            margin: 0 0 8px 0;
+            color: #1f2937;
+            font-size: 28px;
+          }
+          .validation-card .subtitle {
+            margin: 0 0 32px 0;
+            color: #6b7280;
+            font-size: 16px;
+          }
+          .cert-number {
+            background: #f3f4f6;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin: 24px 0;
+            color: #1f2937;
+          }
+          .validation-result {
+            padding: 20px;
+            border-radius: 8px;
+            margin: 24px 0;
+          }
+          .validation-result.valid {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            color: #065f46;
+          }
+          .validation-result.invalid {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+          }
+          .validation-result strong {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 8px;
+          }
+          .back-button {
+            display: inline-block;
+            margin-top: 24px;
+            padding: 12px 24px;
+            background: #4F6BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+          }
+          .back-button:hover {
+            background: #3d54cc;
+          }
+        </style>
+        <div class="validation-card">
+          <h1>🔍 Zertifikat-Validierung</h1>
+          <p class="subtitle">IpW GmbH – BGA-Trainer Pro</p>
+          
+          <div class="cert-number">${certNumber}</div>
+          
+          <div id="validation-result"></div>
+          
+          <a href="${window.location.pathname}" class="back-button">→ Zurück zum BGA-Trainer</a>
+        </div>
+      `;
+      
+      // Validiere die Nummer
+      validateCertificateNumber(certNumber);
+    }
+    
+    // Validiert eine Zertifikatsnummer
+    function validateCertificateNumber(certNumber) {
+      const resultDiv = document.getElementById('validation-result');
+      
+      // Prüfe Format: BGA-YYYY-LEVEL-HASH
+      const pattern = /^BGA-(\d{4})-(BRONZE|SILVER|GOLD)-([A-Z0-9]+)$/;
+      const match = certNumber.match(pattern);
+      
+      if (!match) {
+        resultDiv.className = 'validation-result invalid';
+        resultDiv.innerHTML = `
+          <strong>→ Ungültige Zertifikatsnummer</strong>
+          <p>Diese Zertifikatsnummer entspricht nicht dem erwarteten Format.</p>
+        `;
+        return;
+      }
+      
+      const year = match[1];
+      const level = match[2];
+      const currentYear = new Date().getFullYear();
+      
+      // Prüfe ob Jahr plausibel ist (nicht in Zukunft, nicht zu alt)
+      if (parseInt(year) > currentYear || parseInt(year) < 2024) {
+        resultDiv.className = 'validation-result invalid';
+        resultDiv.innerHTML = `
+          <strong>→ Ungültige Zertifikatsnummer</strong>
+          <p>Das Jahr in dieser Zertifikatsnummer ist nicht plausibel.</p>
+        `;
+        return;
+      }
+      
+      // Zertifikat ist strukturell gültig
+      const levelLabels = {
+        'BRONZE': 'Bronze-Niveau',
+        'SILVER': 'Silber-Niveau',
+        'GOLD': 'Gold-Niveau'
+      };
+      
+      resultDiv.className = 'validation-result valid';
+      resultDiv.innerHTML = `
+        <strong>→ Zertifikat gültig</strong>
+        <p>Dieses Zertifikat wurde ausgestellt für <strong>${levelLabels[level]}</strong> im Jahr <strong>${year}</strong>.</p>
+        <p style="margin-top: 12px; font-size: 14px;">Die Zertifikatsnummer ist authentisch und folgt dem offiziellen Format des BGA-Trainer Pro Systems der IpW GmbH.</p>
+      `;
+    }
+    
+    // Zeigt Willkommensnachricht mit Lernfortschritt
+    function showWelcomeMessage() {
+      const stats = LearningManager.getBasicStats();
+      
+      // Aktualisiere das Progress Badge im Header
+      updateProgressBadge();
+      
+      if (stats.totalAttempts === 0) {
+        // Neuer User
+        console.log('🎓 BGA-Trainer Pro: Willkommen! Viel Erfolg beim Lernen.');
+        return;
+      }
+      
+      // Returning User - zeige Fortschritt
+      const startDate = new Date(stats.startedAt);
+      const daysSince = Math.floor((Date.now() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      let message = `🎓 Willkommen zurück!\n\n`;
+      message += `📊 Dein Fortschritt:\n`;
+      message += `• ${stats.totalAttempts} Fälle bearbeitet\n`;
+      message += `• ${stats.correctAttempts} davon richtig (${stats.successRate}%)\n`;
+      message += `• ${stats.uniqueCasesWorked} verschiedene Fälle geübt\n`;
+      
+      if (daysSince > 0) {
+        message += `• Seit ${daysSince} Tag${daysSince !== 1 ? 'en' : ''} dabei\n`;
+      }
+      
+      if (stats.recentSessionSize > 0) {
+        message += `\n💪 In dieser Session: ${stats.recentSessionSize} Fall${stats.recentSessionSize !== 1 ? 'e' : ''} bearbeitet`;
+      }
+      
+      console.log(message);
+      
+      // Optional: Zeige auch visuell im UI (dezent)
+      // Das können wir in Sprint 2 ausbauen
+    }
+    
+    // Aktualisiert das Progress Badge im Header
+    function updateProgressBadge() {
+      const stats = LearningManager.getBasicStats();
+      const badge = document.getElementById('progress-badge');
+      const text = document.getElementById('progress-text');
+      
+      if (stats.totalAttempts === 0) {
+        text.textContent = '🎯 Start';
+        badge.title = 'Noch keine Fälle bearbeitet. Viel Erfolg!';
+      } else {
+        text.textContent = `📊 ${stats.correctAttempts}/${stats.totalAttempts} (${stats.successRate}%)`;
+        badge.title = `Fortschritt: ${stats.correctAttempts} von ${stats.totalAttempts} Fällen richtig gelöst (${stats.successRate}%)\n${stats.uniqueCasesWorked} verschiedene Fälle geübt\n\nKlicke für mehr Details`;
+      }
+      
+      // Mache Badge klickbar für detaillierte Statistiken
+      badge.style.cursor = 'pointer';
+      badge.onclick = showDetailedStats;
+    }
+    
+    // ========================================
+    // SPRINT 2: Dashboard Funktionen
+    // ========================================
+    
+    // Zeigt/versteckt das Dashboard
+    function toggleDashboard() {
+      const dashboard = document.getElementById('stats-dashboard');
+      const isHidden = dashboard.classList.contains('hidden');
+      
+      if (isHidden) {
+        const stats = LearningManager.getBasicStats();
+        if (stats.totalAttempts === 0) {
+          alert('📊 Noch keine Statistiken verfügbar.\n\nBearbeite ein paar Fälle und deine Fortschritte werden hier angezeigt!');
+          return;
+        }
+        renderDashboard();
+        dashboard.classList.remove('hidden');
+        // Scroll zum Dashboard
+        dashboard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        dashboard.classList.add('hidden');
+      }
+    }
+    
+    // Rendert das komplette Dashboard
+    function renderDashboard() {
+      const container = document.getElementById('stats-content');
+      const stats = LearningManager.getBasicStats();
+      
+      let html = '';
+      
+      // Sektion 0: Meilenstein-Fortschritt (NEUE SEKTION)
+      html += renderMilestoneProgress();
+      
+      // Sektion 1: Übersicht
+      html += renderOverviewSection(stats);
+      
+      // Sektion 2: Performance nach Störungstyp
+      html += renderDisorderPerformance();
+      
+      // Sektion 3: Fehleranalyse
+      html += renderErrorAnalysis();
+      
+      // Sektion 4: Trend-Analyse
+      html += renderTrendAnalysis();
+      
+      // Sektion 5: Verwechslungsmuster
+      html += renderConfusionPatterns();
+      
+      // Sektion 6: Empfehlungen
+      html += renderRecommendations();
+      
+      container.innerHTML = html;
+    }
+    
+    // Rendert den Meilenstein-Fortschritt
+    function renderMilestoneProgress() {
+      const milestoneEval = LearningManager.evaluateMilestones();
+      const currentLevel = milestoneEval.currentLevel;
+      const nextLevel = milestoneEval.nextLevel;
+      
+      let html = '<div class="stats-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">';
+      html += '<h3 style="color: white;">🏆 Mein Lernfortschritt & Zertifizierung</h3>';
+      
+      if (currentLevel) {
+        const milestone = LearningManager.MILESTONES[currentLevel];
+        html += '<div style="background: rgba(255,255,255,0.2); padding: 16px; border-radius: 8px; margin-bottom: 16px;">';
+        html += `<div style="display: flex; align-items: center; gap: 16px; margin-bottom: 12px;">`;
+        html += `<div style="width: 80px; height: 80px; border-radius: 50%; background: ${milestone.color}; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.75rem; text-align: center; line-height: 1.2; flex-shrink: 0;">${milestone.label.replace('-', '<br>')}</div>`;
+        html += `<div style="flex: 1;">`;
+        html += `<div style="font-size: 1.3rem; font-weight: 700; margin-bottom: 4px;">Gratulation! ${milestone.label} erreicht</div>`;
+        html += `<div style="font-size: 0.9rem; opacity: 0.95;">${milestone.description}</div>`;
+        html += `</div>`;
+        html += `</div>`;
+        html += `<button onclick="showCertificateModal('${currentLevel}')" class="btn btn-primary" style="width: 100%; background: white; color: #667eea; font-weight: 600; border: none; padding: 12px;">📄 Zertifikat herunterladen</button>`;
+        html += '</div>';
+      }
+      
+      if (nextLevel) {
+        const nextMilestone = LearningManager.MILESTONES[nextLevel];
+        const progress = milestoneEval.progress[nextLevel];
+        
+        html += '<div style="background: rgba(255,255,255,0.15); padding: 16px; border-radius: 8px;">';
+        html += `<div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 12px;">Nächstes Ziel: ${nextMilestone.label}</div>`;
+        
+        // Zeige Fortschrittsbalken für jedes Kriterium
+        for (const key in progress) {
+          const criterion = progress[key];
+          if (!criterion) continue;
+          
+          let label = '';
+          if (key === 'uniqueCases') label = 'Verschiedene Fälle';
+          else if (key === 'successRate') label = 'Erfolgsquote';
+          else if (key === 'primaryErrorRate') label = 'Fehlerrate Primärstörung';
+          else if (key === 'compensationErrorRate') label = 'Fehlerrate Kompensation';
+          else if (key === 'advancedCases') label = 'Advanced-Fälle';
+          else if (key === 'mixedDisorders') label = 'Gemischte Störungen';
+          
+          const percentage = key.includes('ErrorRate') 
+            ? Math.max(0, Math.min(100, 100 - (criterion.current / criterion.required * 100)))
+            : Math.min(100, (criterion.current / criterion.required * 100));
+          
+          const displayValue = key.includes('Rate') 
+            ? `${criterion.current}%${key.includes('ErrorRate') ? ' (max ' + criterion.required + '%)' : ' (min ' + criterion.required + '%)'}`
+            : `${criterion.current}/${criterion.required}`;
+          
+          html += `<div style="margin-bottom: 12px;">`;
+          html += `<div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 0.85rem;">`;
+          html += `<span>${label}</span>`;
+          html += `<span style="font-weight: 600;">${displayValue}</span>`;
+          html += `</div>`;
+          html += `<div class="progress-bar-container" style="background: rgba(255,255,255,0.3);">`;
+          html += `<div class="progress-bar ${criterion.met ? 'excellent' : 'needs-work'}" style="width: ${percentage}%">`;
+          if (percentage > 15) html += `${Math.round(percentage)}%`;
+          html += `</div>`;
+          html += `</div>`;
+          html += `</div>`;
+        }
+        
+        html += `<div style="margin-top: 12px; font-size: 0.85rem; opacity: 0.9;">Geschätzter Zeitaufwand für ${nextMilestone.label}: ${nextMilestone.timeEstimate}</div>`;
+        html += '</div>';
+      } else if (!currentLevel) {
+        // Noch kein Meilenstein erreicht, zeige Bronze-Fortschritt
+        const bronzeProgress = milestoneEval.progress['BRONZE'];
+        html += '<div style="background: rgba(255,255,255,0.15); padding: 16px; border-radius: 8px;">';
+        html += `<div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 12px;">Dein erstes Ziel: Bronze-Niveau</div>`;
+        
+        for (const key in bronzeProgress) {
+          const criterion = bronzeProgress[key];
+          if (!criterion) continue;
+          
+          let label = '';
+          if (key === 'uniqueCases') label = 'Verschiedene Fälle';
+          else if (key === 'successRate') label = 'Erfolgsquote';
+          
+          const percentage = Math.min(100, (criterion.current / criterion.required * 100));
+          const displayValue = key.includes('Rate') 
+            ? `${criterion.current}% (min ${criterion.required}%)`
+            : `${criterion.current}/${criterion.required}`;
+          
+          html += `<div style="margin-bottom: 12px;">`;
+          html += `<div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 0.85rem;">`;
+          html += `<span>${label}</span>`;
+          html += `<span style="font-weight: 600;">${displayValue}</span>`;
+          html += `</div>`;
+          html += `<div class="progress-bar-container" style="background: rgba(255,255,255,0.3);">`;
+          html += `<div class="progress-bar ${criterion.met ? 'excellent' : 'needs-work'}" style="width: ${percentage}%">`;
+          if (percentage > 15) html += `${Math.round(percentage)}%`;
+          html += `</div>`;
+          html += `</div>`;
+          html += `</div>`;
+        }
+        
+        html += `<div style="margin-top: 12px; font-size: 0.85rem; opacity: 0.9;">Geschätzter Zeitaufwand: 2 Zeitstunden (3 UE   45min)</div>`;
+        html += '</div>';
+      } else {
+        // Gold erreicht, höchste Stufe
+        html += '<div style="background: rgba(255,255,255,0.2); padding: 16px; border-radius: 8px; text-align: center;">';
+        html += '<div style="font-size: 1.5rem; margin-bottom: 8px;">🎉</div>';
+        html += '<div style="font-size: 1.2rem; font-weight: 600;">Du hast die höchste Stufe erreicht!</div>';
+        html += '<div style="font-size: 0.9rem; margin-top: 8px; opacity: 0.9;">Du beherrschst die BGA-Analyse auf Expertenniveau. Weiter so!</div>';
+        html += '</div>';
+      }
+      
+      html += '</div>';
+      return html;
+    }
+    
+    // Rendert die Übersichts-Sektion
+    function renderOverviewSection(stats) {
+      const startDate = new Date(stats.startedAt);
+      const daysSince = Math.floor((Date.now() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      let html = '<div class="stats-section">';
+      html += '<h3>📈 Gesamtübersicht</h3>';
+      
+      // Adaptive Lernstrategie Hinweis
+      html += '<div style="background: rgba(255,255,255,0.2); padding: 12px; border-radius: 6px; margin-bottom: 16px; font-size: 0.85rem;">';
+      html += '🔧  <strong>Adaptive Lernstrategie aktiv:</strong> ';
+      html += 'Das Tool wählt die nächsten Fälle intelligent basierend auf deinem Fortschritt. ';
+      html += 'Du bekommst Wiederholungen nach wissenschaftlich bewährten Intervallen, ';
+      html += 'gezieltes Training für Schwachstellen und regelmäßig neue Herausforderungen.';
+      html += '</div>';
+      
+      html += '<div class="stats-grid">';
+      
+      html += '<div class="stat-item">';
+      html += '<div class="stat-label">Bearbeitete Fälle</div>';
+      html += `<div class="stat-value">${stats.totalAttempts}</div>`;
+      html += '</div>';
+      
+      html += '<div class="stat-item">';
+      html += '<div class="stat-label">Erfolgsquote</div>';
+      html += `<div class="stat-value">${stats.successRate}%</div>`;
+      html += '</div>';
+      
+      html += '<div class="stat-item">';
+      html += '<div class="stat-label">Verschiedene Fälle</div>';
+      html += `<div class="stat-value">${stats.uniqueCasesWorked}/${CASES.length}</div>`;
+      html += '</div>';
+      
+      html += '<div class="stat-item">';
+      html += '<div class="stat-label">Lernzeit</div>';
+      html += `<div class="stat-value">${daysSince === 0 ? 'Heute' : daysSince + ' Tag' + (daysSince !== 1 ? 'e' : '')}</div>`;
+      html += '</div>';
+      
+      html += '</div>'; // stats-grid
+      
+      // Spaced Repetition Info
+      const dueRepetitions = LearningManager.getDueForRepetition();
+      if (dueRepetitions.length > 0) {
+        html += '<div style="margin-top: 12px; padding: 10px; background: rgba(251, 191, 36, 0.3); border-radius: 6px; font-size: 0.85rem;">';
+        html += `→ <strong>${dueRepetitions.length} Fall${dueRepetitions.length !== 1 ? 'e' : ''} zur Wiederholung fällig!</strong> `;
+        html += 'Diese wirst du beim Üben bevorzugt sehen.';
+        html += '</div>';
+      }
+      
+      html += '</div>'; // stats-section
+      
+      return html;
+    }
+    
+    // Rendert Performance nach Störungstyp
+    function renderDisorderPerformance() {
+      const performance = LearningManager.getPerformanceByDisorder();
+      
+      if (performance.length === 0) {
+        return '';
+      }
+      
+      let html = '<div class="stats-section">';
+      html += '<h3>🎯 Performance nach Störungstyp</h3>';
+      
+      performance.forEach(disorder => {
+        html += `<div style="margin-bottom: 16px;">`;
+        html += `<div style="display: flex; justify-content: space-between; margin-bottom: 4px;">`;
+        html += `<span style="font-weight: 500;">${disorder.label}</span>`;
+        html += `<span>${disorder.correct}/${disorder.total} (${disorder.percentage}%)</span>`;
+        html += `</div>`;
+        html += `<div class="progress-bar-container">`;
+        html += `<div class="progress-bar ${disorder.status}" style="width: ${disorder.percentage}%">`;
+        if (disorder.percentage > 20) {
+          html += `${disorder.percentage}%`;
+        }
+        html += `</div>`;
+        html += `</div>`;
+        html += `</div>`;
+      });
+      
+      html += '</div>';
+      return html;
+    }
+    
+    // Rendert Fehlertyp-Analyse
+    function renderErrorAnalysis() {
+      const errorAnalysis = LearningManager.getErrorTypeAnalysis();
+      const stats = LearningManager.getBasicStats();
+      
+      if (stats.totalAttempts < 5) {
+        return ''; // Zu wenig Daten
+      }
+      
+      let html = '<div class="stats-section">';
+      html += '<h3>🔍 Fehleranalyse</h3>';
+      
+      html += '<div style="margin-bottom: 12px;">';
+      html += `<p style="margin: 0 0 8px 0; font-size: 0.9rem;">Von ${errorAnalysis.totalErrors} Fehlern:</p>`;
+      html += '<div class="stats-grid">';
+      
+      html += '<div class="stat-item">';
+      html += '<div class="stat-label">Primärstörung falsch</div>';
+      html += `<div class="stat-value">${errorAnalysis.primaryErrors}</div>`;
+      html += `<div style="font-size: 0.75rem; opacity: 0.8;">${errorAnalysis.primaryErrorRate}% aller Versuche</div>`;
+      html += '</div>';
+      
+      html += '<div class="stat-item">';
+      html += '<div class="stat-label">Kompensation falsch</div>';
+      html += `<div class="stat-value">${errorAnalysis.compensationErrors}</div>`;
+      html += `<div style="font-size: 0.75rem; opacity: 0.8;">${errorAnalysis.compensationErrorRate}% aller Versuche</div>`;
+      html += '</div>';
+      
+      html += '<div class="stat-item">';
+      html += '<div class="stat-label">Beides falsch</div>';
+      html += `<div class="stat-value">${errorAnalysis.bothErrors}</div>`;
+      html += `<div style="font-size: 0.75rem; opacity: 0.8;">${errorAnalysis.bothErrorRate}% aller Versuche</div>`;
+      html += '</div>';
+      
+      html += '</div>'; // stats-grid
+      
+      // Diagnose
+      let diagnosis = '';
+      if (errorAnalysis.mainWeakness === 'primary') {
+        diagnosis = '💡 <strong>Hauptschwäche:</strong> Erkennung der Primärstörung. Tipp: Schau zuerst auf den pH-Wert, dann auf pCO₂ und HCO₃⁻.';
+      } else if (errorAnalysis.mainWeakness === 'compensation') {
+        diagnosis = '💡 <strong>Hauptschwäche:</strong> Einschätzung der Kompensation. Tipp: Ist der andere Parameter auch außerhalb der Norm? Dann liegt Kompensation vor.';
+      } else if (errorAnalysis.mainWeakness === 'both') {
+        diagnosis = '💡 <strong>Hauptschwäche:</strong> Grundlegendes BGA-Verständnis. Tipp: Arbeite die Fälle Schritt für Schritt durch und nutze den Normwerte-Spickzettel.';
+      } else {
+        diagnosis = '→ <strong>Sehr gut!</strong> Du arbeitest präzise und machst kaum Fehler.';
+      }
+      
+      html += `<div style="margin-top: 12px; padding: 10px; background: rgba(255,255,255,0.2); border-radius: 6px; font-size: 0.85rem;">${diagnosis}</div>`;
+      html += '</div>';
+      
+      html += '</div>';
+      return html;
+    }
+    
+    // Rendert Trend-Analyse
+    function renderTrendAnalysis() {
+      const trend = LearningManager.getTrendAnalysis();
+      
+      if (!trend.available) {
+        return ''; // Zu wenig Daten
+      }
+      
+      let html = '<div class="stats-section">';
+      html += '<h3>📊 Lernkurve</h3>';
+      
+      let trendIcon = '';
+      if (trend.trend === 'strong-improvement') trendIcon = '🚀';
+      else if (trend.trend === 'improvement') trendIcon = '📈';
+      else if (trend.trend === 'stable') trendIcon = '➡️';
+      else trendIcon = '📉';
+      
+      html += `<div style="text-align: center; padding: 16px;">`;
+      html += `<div style="font-size: 2.5rem; margin-bottom: 8px;">${trendIcon}</div>`;
+      html += `<div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 8px;">${trend.message}</div>`;
+      html += `<div style="display: flex; justify-content: center; gap: 32px; margin-top: 16px;">`;
+      html += `<div>`;
+      html += `<div style="font-size: 0.85rem; opacity: 0.9;">Erste Hälfte</div>`;
+      html += `<div style="font-size: 1.8rem; font-weight: 700;">${trend.firstHalfRate}%</div>`;
+      html += `</div>`;
+      html += `<div style="font-size: 2rem; align-self: center;">→</div>`;
+      html += `<div>`;
+      html += `<div style="font-size: 0.85rem; opacity: 0.9;">Zweite Hälfte</div>`;
+      html += `<div style="font-size: 1.8rem; font-weight: 700;">${trend.secondHalfRate}%</div>`;
+      html += `</div>`;
+      html += `</div>`;
+      
+      if (trend.improvement > 0) {
+        html += `<div style="margin-top: 12px; font-size: 0.9rem; color: #10b981;">→ +${trend.improvement} Prozentpunkte Verbesserung</div>`;
+      } else if (trend.improvement < 0) {
+        html += `<div style="margin-top: 12px; font-size: 0.9rem; color: #fbbf24;">→ ${trend.improvement} Prozentpunkte</div>`;
+      }
+      
+      html += `</div>`;
+      html += '</div>';
+      
+      return html;
+    }
+    
+    // Rendert Verwechslungsmuster
+    function renderConfusionPatterns() {
+      const patterns = LearningManager.getConfusionPatterns();
+      
+      if (patterns.length === 0) {
+        return ''; // Keine systematischen Verwechslungen
+      }
+      
+      let html = '<div class="stats-section">';
+      html += '<h3>📄 Häufige Verwechslungen</h3>';
+      html += `<p style="margin: 0 0 12px 0; font-size: 0.85rem; opacity: 0.9;">Diese Störungen verwechselst du öfter:</p>`;
+      
+      patterns.forEach(pattern => {
+        html += `<div style="background: rgba(255,255,255,0.15); padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 0.85rem;">`;
+        html += `<div style="font-weight: 600;">${getLabel(pattern.correct)} → ${getLabel(pattern.selected)}</div>`;
+        html += `<div style="opacity: 0.9;">${pattern.count}× verwechselt</div>`;
+        html += `</div>`;
+      });
+      
+      html += '</div>';
+      return html;
+    }
+    
+    // Rendert Empfehlungen
+    function renderRecommendations() {
+      const recommendations = LearningManager.getRecommendedCases();
+      
+      if (recommendations.length === 0) {
+        return '';
+      }
+      
+      let html = '<div class="stats-section">';
+      html += '<h3>💡 Empfehlungen für dich</h3>';
+      
+      recommendations.forEach(rec => {
+        html += '<div class="recommendation-card">';
+        html += `<h4>${rec.title}</h4>`;
+        html += `<p>${rec.description}</p>`;
+        html += '</div>';
+      });
+      
+      html += '</div>';
+      return html;
+    }
+    
+    // Zeigt das Modal zur Zertifikatsgenerierung
+    function showCertificateModal(level) {
+      const milestone = LearningManager.MILESTONES[level];
+      
+      // Erstelle Modal
+      const modal = document.createElement('div');
+      modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 10000;';
+      
+      const modalContent = document.createElement('div');
+      modalContent.style.cssText = 'background: white; border-radius: 12px; padding: 32px; max-width: 500px; width: 90%;';
+      
+      modalContent.innerHTML = `
+        <h2 style="margin: 0 0 8px 0; color: #1f2937;">Zertifikat generieren</h2>
+        <p style="margin: 0 0 24px 0; color: #6b7280; font-size: 0.95rem;">Sie haben das <strong>${milestone.label}</strong> erfolgreich erreicht!</p>
+        
+        <div style="margin-bottom: 24px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Ihr Name (wie er auf dem Zertifikat erscheinen soll)</label>
+          <input type="text" id="certificate-name-input" placeholder="Vorname Nachname" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 6px; font-size: 1rem; box-sizing: border-box;" />
+          <p style="margin: 8px 0 0 0; font-size: 0.75rem; color: #6b7280;">Ihr Name wird nicht gespeichert und dient nur zur Erstellung des PDF-Dokuments.</p>
+        </div>
+        
+        <div style="display: flex; gap: 12px;">
+          <button onclick="closeCertificateModal()" style="flex: 1; padding: 12px; background: #e5e7eb; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; color: #374151;">Abbrechen</button>
+          <button onclick="generateCertificatePDF('${level}')" style="flex: 1; padding: 12px; background: #4F6BFF; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; color: white;">Zertifikat erstellen</button>
+        </div>
+      `;
+      
+      modal.appendChild(modalContent);
+      modal.id = 'certificate-modal';
+      document.body.appendChild(modal);
+      
+      // Focus auf Eingabefeld
+      setTimeout(() => document.getElementById('certificate-name-input').focus(), 100);
+      
+      // Enter-Taste zum Generieren
+      document.getElementById('certificate-name-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') generateCertificatePDF(level);
+      });
+    }
+    
+    // Schließt das Zertifikats-Modal
+    function closeCertificateModal() {
+      const modal = document.getElementById('certificate-modal');
+      if (modal) modal.remove();
+    }
+    
+    // Generiert das PDF-Zertifikat
+    function generateCertificatePDF(level) {
+      const nameInput = document.getElementById('certificate-name-input');
+      const userName = nameInput.value.trim();
+      
+      if (!userName) {
+        alert('Bitte geben Sie Ihren Namen ein.');
+        nameInput.focus();
+        return;
+      }
+      
+      // Generiere Zertifikatsnummer
+      const certNumber = LearningManager.generateCertificateNumber(level);
+      
+      // Hole alle benötigten Daten
+      const milestone = LearningManager.MILESTONES[level];
+      const stats = LearningManager.getBasicStats();
+      const errorAnalysis = LearningManager.getErrorTypeAnalysis();
+      const milestoneEval = LearningManager.evaluateMilestones();
+      const progress = milestoneEval.progress[level];
+      
+      // Erstelle HTML für das Zertifikat
+      const certificateHTML = createCertificateHTML(userName, level, milestone, stats, errorAnalysis, progress, certNumber);
+      
+      // Öffne in neuem Fenster zum Drucken
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(certificateHTML);
+      printWindow.document.close();
+      
+      // Schließe Modal
+      closeCertificateModal();
+      
+      // Zeige Erfolgsbestätigung
+      setTimeout(() => {
+        alert('Zertifikat wurde in einem neuen Fenster geöffnet. Sie können es jetzt drucken oder als PDF speichern (Strg+P / Cmd+P).');
+      }, 500);
+    }
+    
+    // Erstellt das HTML für das Zertifikat (KOMPAKTE EINSEITIGE VERSION)
+    function createCertificateHTML(userName, level, milestone, stats, errorAnalysis, progress, certNumber) {
+      const today = new Date();
+      const dateStr = today.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      
+      // Berechne spezifische Werte
+      const uniqueCases = progress.uniqueCases.current;
+      const successRate = progress.successRate.current;
+      const primaryErrorRate = progress.primaryErrorRate ? progress.primaryErrorRate.current : null;
+      const compensationErrorRate = progress.compensationErrorRate ? progress.compensationErrorRate.current : null;
+      const advancedCases = progress.advancedCases ? progress.advancedCases.current : 0;
+      const mixedDisorders = progress.mixedDisorders ? progress.mixedDisorders.current : 0;
+      
+      // QR-Code generieren
+      const validationURL = `https://ipw-martindamke.github.io/bga_coach/certificate-validation.html?cert=${certNumber}`;
+      const qrCodeURL = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(validationURL)}`;
+      
+      // Kompakter Kompetenztext (max 2 Sätze)
+      let shortCompetenceText = '';
+      if (level === 'BRONZE') {
+        shortCompetenceText = 'Die Teilnehmerin kann anhand von pH-Wert, pCO₂ und HCO₃⁻ Säure-Basen-Störungen systematisch identifizieren und zwischen den Hauptkategorien unterscheiden.';
+      } else if (level === 'SILVER') {
+        shortCompetenceText = 'Die Teilnehmerin beherrscht die Analyse von Säure-Basen-Störungen und kann Kompensationsmechanismen sicher einschätzen.';
+      } else if (level === 'GOLD') {
+        shortCompetenceText = 'Die Teilnehmerin kann Säure-Basen-Störungen sicher identifizieren, Kompensationsmechanismen einschätzen, gemischte Störungsbilder differenzieren und aus BGA-Befunden pflegerische Handlungsnotwendigkeiten ableiten.';
+      }
+      
+      return `
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zertifikat - ${userName}</title>
+  <style>
+    @page {
+      margin: 1.5cm;
+      size: A4 portrait;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.4;
+      color: #1f2937;
+      max-width: 100%;
+      margin: 0;
+      padding: 0;
+      background: white;
+      font-size: 11pt;
+    }
+    
+    .container {
+      position: relative;
+      min-height: 26cm;
+    }
+    
+    .watermark {
+      position: fixed;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0.03;
+      font-size: 180px;
+      font-weight: bold;
+      color: #4F6BFF;
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #4F6BFF;
+    }
+    
+    .logo-section {
+      text-align: right;
+    }
+    
+    .logo-text {
+      font-size: 22px;
+      font-weight: bold;
+      color: #4F6BFF;
+      margin: 0;
+    }
+    
+    .subtitle {
+      font-size: 10px;
+      color: #6b7280;
+      margin: 2px 0 0 0;
+    }
+    
+    .title-section {
+      text-align: center;
+      margin: 15px 0;
+    }
+    
+    .title {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 0 0 6px 0;
+      color: #1f2937;
+      letter-spacing: 0.5px;
+    }
+    
+    .subtitle-main {
+      font-size: 13px;
+      color: #6b7280;
+      margin: 0 0 12px 0;
+    }
+    
+    .badge {
+      display: inline-block;
+      background: ${milestone.color};
+      color: white;
+      padding: 8px 28px;
+      border-radius: 50px;
+      font-size: 15px;
+      font-weight: bold;
+      margin: 8px 0;
+    }
+    
+    .participant-name {
+      text-align: center;
+      font-size: 26px;
+      font-weight: bold;
+      margin: 15px 0 18px 0;
+      color: #1f2937;
+    }
+    
+    .achievement-box {
+      background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
+      padding: 14px;
+      border-radius: 6px;
+      margin: 15px 0;
+      border-left: 4px solid #4F6BFF;
+    }
+    
+    .achievement-title {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1f2937;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px 15px;
+      font-size: 11px;
+    }
+    
+    .stat-item {
+      padding: 4px 0;
+    }
+    
+    .stat-label {
+      color: #6b7280;
+      font-size: 10px;
+      margin-bottom: 2px;
+    }
+    
+    .stat-value {
+      font-weight: 600;
+      color: #1f2937;
+      font-size: 12px;
+    }
+    
+    .content-section {
+      margin: 15px 0;
+    }
+    
+    .section-title {
+      font-size: 12px;
+      font-weight: 600;
+      margin: 0 0 8px 0;
+      color: #1f2937;
+    }
+    
+    .topics-compact {
+      font-size: 10.5px;
+      line-height: 1.6;
+      color: #374151;
+    }
+    
+    .competence-text {
+      font-size: 11px;
+      line-height: 1.6;
+      margin: 12px 0;
+      text-align: justify;
+    }
+    
+    .methodology-inline {
+      font-size: 10px;
+      color: #6b7280;
+      font-style: italic;
+      margin-top: 6px;
+    }
+    
+    .footer-section {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding-top: 15px;
+      border-top: 1px solid #e5e7eb;
+    }
+    
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1.5fr 0.8fr;
+      gap: 15px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .footer-left, .footer-center, .footer-right {
+      font-size: 10px;
+    }
+    
+    .footer-center {
+      text-align: center;
+    }
+    
+    .footer-center strong {
+      font-size: 9px;
+      display: block;
+      margin-bottom: 2px;
+    }
+    
+    .footer-center div {
+      margin: 1px 0;
+    }
+    
+    .footer-right {
+      text-align: right;
+    }
+    
+    .qr-code {
+      width: 70px;
+      height: 70px;
+      float: right;
+    }
+    
+    .qr-label {
+      clear: right;
+      font-size: 8px;
+      text-align: right;
+      margin-top: 2px;
+      line-height: 1.3;
+    }
+    
+    .disclaimer {
+      font-size: 8px;
+      color: #9ca3af;
+      line-height: 1.4;
+      text-align: center;
+      padding: 8px 0 0 0;
+      border-top: 1px solid #f3f4f6;
+    }
+    
+    .legal-inline {
+      font-size: 9px;
+      color: #6b7280;
+      line-height: 1.5;
+      padding: 10px;
+      background: #f9fafb;
+      border-left: 3px solid #4F6BFF;
+      margin: 12px 0;
+    }
+    
+    @media print {
+      body {
+        padding: 0;
+      }
+      .container {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="watermark">IpW</div>
+    
+    <div class="header">
+      <div style="font-size: 10px; color: #6b7280;">Bergen (Oberbayern), ${dateStr}</div>
+      <div class="logo-section">
+        <div class="logo-text">IpW</div>
+        <div class="subtitle">Institut für pflegerische Weiterbildung</div>
+      </div>
+    </div>
+    
+    <div class="title-section">
+      <h1 class="title">FORTBILDUNGSNACHWEIS</h1>
+      <p class="subtitle-main">Blutgasanalyse in der außerklinischen Intensivpflege</p>
+      <div class="badge">${milestone.label.toUpperCase()}</div>
+    </div>
+    
+    <div class="participant-name">${userName}</div>
+    
+    <div class="achievement-box">
+      <div class="achievement-title">Erfolgreich abgeschlossene Kompetenzstufe: ${milestone.label}</div>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-label">Fallszenarien</div>
+          <div class="stat-value">${uniqueCases} Fälle</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Erfolgsquote</div>
+          <div class="stat-value">${successRate}%</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Lernumfang</div>
+          <div class="stat-value">${milestone.timeEstimate}</div>
+        </div>
+        ${primaryErrorRate !== null ? `
+        <div class="stat-item">
+          <div class="stat-label">Fehler Primär</div>
+          <div class="stat-value">${primaryErrorRate}%</div>
+        </div>
+        ` : ''}
+        ${compensationErrorRate !== null ? `
+        <div class="stat-item">
+          <div class="stat-label">Fehler Komp.</div>
+          <div class="stat-value">${compensationErrorRate}%</div>
+        </div>
+        ` : ''}
+        ${advancedCases > 0 ? `
+        <div class="stat-item">
+          <div class="stat-label">Advanced</div>
+          <div class="stat-value">${advancedCases} Fälle</div>
+        </div>
+        ` : ''}
+        ${mixedDisorders > 0 ? `
+        <div class="stat-item">
+          <div class="stat-label">Gemischte</div>
+          <div class="stat-value">${mixedDisorders} Fälle</div>
+        </div>
+        ` : ''}
+      </div>
+      <div class="methodology-inline">Lernmethodik: Fallbasierte Analyse mit Feedback, adaptiver Spaced-Repetition und pathophysiologischen Erklärungen</div>
+    </div>
+    
+    <div class="content-section">
+      <div class="section-title">Fachliche Schwerpunkte & Klinische Anwendung</div>
+      <div class="topics-compact">
+        <strong>Kernthemen:</strong> Systematische BGA-Analyse • Säure-Basen-Störungen • Kompensationsmechanismen • COPD und Beatmungspflege • Metabolische Entgleisungen • Niereninsuffizienz • Monitoring und Eskalation • Notfallmanagement
+      </div>
+    </div>
+    
+    <div class="competence-text">
+      <strong>Kompetenzbeschreibung:</strong> ${shortCompetenceText} Die dokumentierte Erfolgsquote von mindestens ${milestone.criteria.successRate}% belegt ${level === 'BRONZE' ? 'grundlegende' : level === 'SILVER' ? 'gefestigte' : 'sichere'} Analysefähigkeiten im Monitoring beatmeter Patienten.
+    </div>
+    
+    <div class="legal-inline">
+      <strong>Hinweis:</strong> Digitale Fortbildung im Selbststudium. Inhalte orientiert an QPR ambulant und Qualitätsstandards der Beatmungspflege. Ergänzt praktische Einarbeitung, ersetzt keine gesetzlich vorgeschriebenen Weiterbildungen.
+    </div>
+    
+    <div class="footer-section">
+      <div class="footer-grid">
+        <div class="footer-left">
+          <strong style="font-size: 11px;">Zertifikat-Nr:</strong><br/>
+          <span style="font-family: 'Courier New', monospace; font-size: 9px;">${certNumber}</span>
+        </div>
+        <div class="footer-center">
+          <strong>Ausgestellt durch</strong>
+          <div>IpW GmbH</div>
+          <div>BGA-Trainer Pro</div>
+          <div style="margin-top: 4px;">info@ipw-schulungen.de</div>
+          <div>www.ipw-schulungen.de</div>
+        </div>
+        <div class="footer-right">
+          <img src="${qrCodeURL}" alt="QR" class="qr-code" />
+          <div class="qr-label">Validierung:<br/>ipw-martindamke.github.io/<br/>bga_coach/validate</div>
+        </div>
+      </div>
+      <div class="disclaimer">
+        Fortbildungsnachweis im Selbststudium. Zeitangaben basieren auf Durchschnittswerten. Anerkennung liegt im Ermessen der jeweiligen Stelle.
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+      `;
+    }
+    
+    // Zeigt eine Gratulation wenn ein neuer Meilenstein erreicht wurde
+    function showMilestoneAchievement(level) {
+      const milestone = LearningManager.MILESTONES[level];
+      
+      // Erstelle Overlay mit Animation
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 10000; animation: fadeIn 0.3s;';
+      
+      const card = document.createElement('div');
+      card.style.cssText = 'background: white; border-radius: 16px; padding: 48px; max-width: 500px; width: 90%; text-align: center; animation: slideUp 0.5s; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);';
+      
+      card.innerHTML = `
+        <style>
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+          }
+          @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+          }
+        </style>
+        <div style="font-size: 64px; margin-bottom: 16px; animation: pulse 1s infinite;">🏆</div>
+        <h2 style="margin: 0 0 8px 0; font-size: 28px; color: #1f2937;">Gratulation!</h2>
+        <div style="width: 120px; height: 120px; margin: 20px auto; border-radius: 50%; background: ${milestone.color}; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1rem; line-height: 1.3; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);">${milestone.label.replace('-', '<br>')}</div>
+        <p style="font-size: 18px; color: #4b5563; margin: 16px 0; font-weight: 500;">${milestone.description}</p>
+        <p style="font-size: 14px; color: #6b7280; margin: 16px 0;">${milestone.competenceText.substring(0, 150)}...</p>
+        <div style="margin-top: 32px; display: flex; gap: 12px;">
+          <button onclick="document.getElementById('milestone-overlay').remove();" style="flex: 1; padding: 14px; background: #e5e7eb; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 15px; color: #374151;">Später</button>
+          <button onclick="document.getElementById('milestone-overlay').remove(); toggleDashboard();" style="flex: 1; padding: 14px; background: #4F6BFF; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 15px; color: white;">Zertifikat erstellen</button>
+        </div>
+      `;
+      
+      overlay.appendChild(card);
+      overlay.id = 'milestone-overlay';
+      document.body.appendChild(overlay);
+      
+      // Auto-close nach 15 Sekunden wenn nicht interagiert
+      setTimeout(() => {
+        const stillThere = document.getElementById('milestone-overlay');
+        if (stillThere) stillThere.remove();
+      }, 15000);
+    }
+    
+    function showDetailedStats() {
+      const stats = LearningManager.getBasicStats();
+      
+      if (stats.totalAttempts === 0) {
+        alert('📊 Noch keine Statistiken verfügbar.\n\nBearbeite ein paar Fälle und deine Fortschritte werden hier angezeigt!');
+        return;
+      }
+      
+      const startDate = new Date(stats.startedAt);
+      const daysSince = Math.floor((Date.now() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      let message = `📊 DEINE LERNSTATISTIKEN\n`;
+      message += `${'='.repeat(40)}\n\n`;
+      
+      message += `📈 Gesamtfortschritt:\n`;
+      message += `   • Bearbeitete Fälle: ${stats.totalAttempts}\n`;
+      message += `   • Richtig gelöst: ${stats.correctAttempts}\n`;
+      message += `   • Erfolgsquote: ${stats.successRate}%\n`;
+      message += `   • Verschiedene Fälle: ${stats.uniqueCasesWorked} von ${CASES.length}\n\n`;
+      
+      message += `→¸ Zeitraum:\n`;
+      if (daysSince === 0) {
+        message += `   • Heute gestartet\n`;
+      } else {
+        message += `   • Seit ${daysSince} Tag${daysSince !== 1 ? 'en' : ''} dabei\n`;
+      }
+      
+      if (stats.recentSessionSize > 0) {
+        message += `   • Aktuelle Session: ${stats.recentSessionSize} Fall${stats.recentSessionSize !== 1 ? 'e' : ''}\n`;
+      }
+      
+      message += `\n`;
+      
+      // Motivierende Nachricht basierend auf Performance
+      if (stats.successRate >= 80) {
+        message += `🌟 Hervorragend! Du beherrschst die BGA-Analyse sehr gut.\n`;
+      } else if (stats.successRate >= 60) {
+        message += `📍 Gut gemacht! Du machst solide Fortschritte.\n`;
+      } else if (stats.successRate >= 40) {
+        message += `💪 Bleib dran! Mit mehr Übung wirst du sicherer.\n`;
+      } else if (stats.totalAttempts < 10) {
+        message += `🎯 Du bist am Anfang. Jeder Fall macht dich besser!\n`;
+      } else {
+        message += `📚 Tipp: Schau dir die Normwerte an und analysiere Schritt für Schritt.\n`;
+      }
+      
+      // In Sprint 2 werden wir hier detailliertere Analysen zeigen
+      message += `\n💡 Detaillierte Fehleranalyse kommt bald!`;
+      
+      alert(message);
+    }
+  </script>
+
+</body>
+</html>

@@ -435,7 +435,7 @@
           <input type="radio" id="mode-mixed" name="mode" value="mixed">
           <label for="mode-mixed">Mixed</label>
         </div>
-        <button id="stats-toggle-btn" class="btn btn-secondary text-sm py-2 px-3" title="Zeige detaillierte Lernstatistiken" type="button">
+        <button id="stats-toggle-btn" class="btn btn-secondary text-sm py-2 px-3" title="Zeige detaillierte Lernstatistiken" type="button" aria-expanded="false" aria-controls="stats-dashboard">
           📊 Statistiken
         </button>
       </div>
@@ -470,7 +470,7 @@
         <div class="bga-item" id="item-ph">
           <label for="ph">pH</label>
           <input type="number" id="ph" step="0.01" value="7.40" readonly>
-          <div class="tooltip" tabindex="0" aria-hidden="false">?
+          <div class="tooltip" tabindex="0">?
             <span class="tooltip-text">Säure-Basen-Status. Niedrig = Azidose, Hoch = Alkalose.</span>
           </div>
         </div>

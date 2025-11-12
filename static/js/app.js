@@ -1,8 +1,9 @@
 /* bga-trainer-pro - extracted app.js
-   - fixes: UTF-8 safe, accessibility improvements (modal focus trap, keyboard tooltips)
-   - persistence: debounced and requestIdleCallback save
-   - developer-mode preserved
-   This file is intentionally conservative: it preserves DOM IDs used by index.html.
+   - Small accessibility/security hardening patches:
+     * initTooltips: ensure tooltip text has role="tooltip"
+     * createModal: after innerHTML, add rel="noopener noreferrer" to external links
+     * stats toggle: update aria-expanded attribute when toggling dashboard
+   - Other logic unchanged (LearningManager, debounced persistence etc.)
 */
 
 (function () {
@@ -92,7 +93,7 @@
     reset() { this.createNewProfile(); safeLocalStorage.remove(this.STORAGE_KEY); return true; }
   };
 
-  // ======= Accessible Modal Helper =======
+  // ======= Accessible Modal Helper (small hardening) =======
   function createModal({ title = '', content = '', closeLabel = 'Schließen' } = {}) {
     const overlay = document.createElement('div');
     overlay.className = 'bga-modal-overlay';
@@ -128,6 +129,18 @@
     const body = document.createElement('div');
     body.innerHTML = content;
 
+    // Security: ensure any external links opened in new tab have rel to prevent opener attacks
+    try {
+      const externalAnchors = body.querySelectorAll('a[target="_blank"]');
+      externalAnchors.forEach(a => {
+        const existingRel = a.getAttribute('rel') || '';
+        if (!/noopener/i.test(existingRel)) existingRel ? a.setAttribute('rel', existingRel + ' noopener noreferrer') : a.setAttribute('rel', 'noopener noreferrer');
+      });
+    } catch (e) {
+      // if content is not parseable, ignore (defensive)
+      console.warn('createModal: failed to adjust external anchors', e);
+    }
+
     const footer = document.createElement('div');
     footer.style.marginTop = '16px';
     footer.style.textAlign = 'right';
@@ -144,6 +157,7 @@
     overlay.appendChild(dialog);
 
     const previouslyFocused = document.activeElement;
+
     function trapFocus(e) {
       const focusable = dialog.querySelectorAll('a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])');
       if (!focusable.length) return;
@@ -174,7 +188,7 @@
     return { overlay, dialog, close };
   }
 
-  // ======= Accessible Tooltips =======
+  // ======= Accessible Tooltips (small improvement) =======
   function initTooltips() {
     const triggers = document.querySelectorAll('.tooltip');
     triggers.forEach((t, idx) => {
@@ -182,6 +196,8 @@
       if (!textEl) return;
       const id = 'bga-tooltip-' + idx;
       textEl.id = id;
+      // Mark tooltip element for assistive tech
+      textEl.setAttribute('role', 'tooltip');
       t.setAttribute('tabindex', '0');
       t.setAttribute('aria-describedby', id);
       t.setAttribute('role', 'button');
@@ -212,13 +228,16 @@
       });
     }
 
-    // Simple stats toggle wiring
+    // Simple stats toggle wiring (update aria-expanded)
     const statsToggle = document.getElementById('stats-toggle-btn');
     const statsDashboard = document.getElementById('stats-dashboard');
     const statsClose = document.getElementById('stats-close-btn');
     if (statsToggle && statsDashboard) {
       statsToggle.addEventListener('click', () => {
+        const opened = !statsDashboard.classList.contains('hidden');
         statsDashboard.classList.toggle('hidden');
+        // toggle aria-expanded
+        statsToggle.setAttribute('aria-expanded', String(!opened));
         // fill basic stats
         const content = document.getElementById('stats-content');
         if (content) {
@@ -227,7 +246,12 @@
         }
       });
     }
-    if (statsClose) statsClose.addEventListener('click', () => statsDashboard.classList.add('hidden'));
+    if (statsClose) {
+      statsClose.addEventListener('click', () => {
+        statsDashboard.classList.add('hidden');
+        if (statsToggle) statsToggle.setAttribute('aria-expanded', 'false');
+      });
+    }
   });
 
   window.BGATools = { LearningManager, createModal, scheduleSave, debounce };

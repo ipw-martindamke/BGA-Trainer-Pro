@@ -253,7 +253,32 @@
       });
     }
   });
+// --- Add this near the bottom of static/js/app.js (after createModal is defined) ---
+function showImpressum() {
+  const content = `
+    <div style="text-align:left;line-height:1.6;">
+      <h3 style="color:#1f2937;margin-bottom:12px;">Angaben gemäß § 5 TMG</h3>
+      <p><strong>IpW GmbH</strong><br>Institut für pflegerische Weiterbildung<br>Angerer Str. 2<br>83346 Bergen<br>Deutschland</p>
+      <p><strong>Kontakt:</strong><br>Tel: 08662 - 485938<br>E-Mail: <a href="mailto:info@ipw-schulungen.de">info@ipw-schulungen.de</a></p>
+      <p style="margin-top:10px;font-size:0.9em;color:#6b7280;">Dieses Impressum dient Demozwecken für das Trainings-Tool.</p>
+    </div>
+  `;
+  createModal({ title: 'Impressum', content });
+}
+window.showImpressum = showImpressum;
 
+function showDatenschutz() {
+  const content = `
+    <div style="text-align:left;line-height:1.6;">
+      <h3 style="color:#1f2937;margin-bottom:12px;">Datenschutzerklärung (Kurz)</h3>
+      <p>Dieses Tool speichert Lerndaten lokal im Browser (LocalStorage). Es werden keine personenbezogenen Daten an Server übermittelt.</p>
+      <p style="margin-top:10px;font-size:0.9em;color:#6b7280;">Detaillierte Datenschutzhinweise sind im Volltext hinterlegt.</p>
+    </div>
+  `;
+  createModal({ title: 'Datenschutz', content });
+}
+window.showDatenschutz = showDatenschutz;
+// --- End of snippet ---
   window.BGATools = { LearningManager, createModal, scheduleSave, debounce };
 
 })();
